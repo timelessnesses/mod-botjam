@@ -1,20 +1,24 @@
 try:
     import uvloop
+
     uvloop.install()
 except ImportError:
     pass
 
 import asyncio
+
 from dotenv import load_dotenv
+
 load_dotenv()
 import os
-from discord.ext import commands
+
 import discord
 from discord import app_commands
+from discord.ext import commands
 
-
-bot = commands.Bot("n!",intents=discord.Intents.all())
+bot = commands.Bot("n!", intents=discord.Intents.all())
 tree = app_commands.CommandTree(bot)
+
 
 @bot.event
 async def on_ready() -> None:
@@ -25,14 +29,17 @@ async def on_ready() -> None:
 
     await tree.sync()
 
+
 async def load_modules(bot: commands.Bot) -> None:
     for file in os.listdir("./src"):
         if file.endswith(".py") and not file.startswith("_"):
             await bot.load_extension(f"src.{file[:-3]}")
 
+
 async def main():
     async with bot:
         await load_modules(bot)
         await bot.start(os.getenv("DISCORD_TOKEN"))
+
 
 asyncio.run(main())

@@ -12,7 +12,9 @@ class Errors(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx:commands.Context, exception:Exception) -> None:
+    async def on_command_error(
+        self, ctx: commands.Context, exception: Exception
+    ) -> None:
         if isinstance(exception, commands.CommandNotFound):
             cmds = [cmd.name for cmd in self.bot.commands]
             # cmds = [cmd.name for cmd in bot.commands if not cmd.hidden] # use this to stop showing hidden commands as suggestions

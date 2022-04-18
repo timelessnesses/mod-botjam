@@ -1,14 +1,17 @@
-import discord
-from discord.ext import commands
 import sys
 
+import discord
+from discord.ext import commands
+
 sys.path.append("src")
-import utils.views
-import utils.embedgen
 import datetime
+
 import aiofiles
-import util.json
-import util.stuffs
+
+import utils.embedgen
+import utils.json
+import utils.stuffs
+import utils.views
 
 
 class Moderation(commands.Cog):
@@ -20,8 +23,8 @@ class Moderation(commands.Cog):
     async def hackban(
         self,
         ctx: commands.Context,
-        user: discord.User=None,
-        reason:str="No reason provided"
+        user: discord.User = None,
+        reason: str = "No reason provided",
     ) -> None:
         """
         Ban user before they joined the server
@@ -31,7 +34,6 @@ class Moderation(commands.Cog):
         user: The user to ban (ID)
         reason: The reason for the ban (default: No reason provided)
         """
-        
 
     @commands.command(name="kick")
     @commands.has_permissions(kick_members=True)
@@ -835,6 +837,21 @@ class Moderation(commands.Cog):
             )
             embed.add_field(name="When", value=i["when"], inline=False)
         await ctx.send(embed=embed)
+
+    @commands.command(name="purge", aliases=["bulkdel", "del", "clear"])
+    @commands.has_permissions(manage_messages=True)
+    async def purge(self, ctx: commands.Context, amount: int = None):
+        """
+        Purge messages
+        """
+        if amount is None:
+            return await ctx.send(embed=utils.embedgen.error_required_arg("amount"))
+        await ctx.channel.purge(limit=amount + 1)
+        await ctx.send(
+            embed=discord.Embed(
+                title="Purged {} messages".format(amount), color=discord.Color.red()
+            )
+        )
 
 
 async def setup(bot: commands.Bot) -> None:
