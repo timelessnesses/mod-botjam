@@ -15,6 +15,7 @@ import os
 import discord
 from discord import app_commands
 from discord.ext import commands
+import jishaku
 
 bot = commands.Bot("n!", intents=discord.Intents.all())
 tree = app_commands.CommandTree(bot)
@@ -39,6 +40,7 @@ async def load_modules(bot: commands.Bot) -> None:
 async def main():
     async with bot:
         await load_modules(bot)
+        await jishaku.async_setup(bot)  # e
         await bot.start(os.getenv("DISCORD_TOKEN"))
 
 
