@@ -6,4 +6,4 @@ async def load(fp) -> dict:
 
 
 async def dump(fp, content: dict) -> None:
-    await fp.write(orjson.dumps(content))
+    await fp.write(orjson.dumps(content).decode("utf-8"))

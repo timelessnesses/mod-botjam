@@ -25,6 +25,7 @@ class Moderation(commands.Cog):
         ctx: discord.Interaction,
         user: int,
         reason: str = "No reason provided",
+        disable_asking: str = "false",
     ) -> None:
         """
         Ban user before they joined the server
@@ -34,6 +35,13 @@ class Moderation(commands.Cog):
         user: The user to ban (ID)
         reason: The reason for the ban (default: No reason provided)
         """
+        if disable_asking.lower() not in ("true", "false"):
+            return await ctx.send(
+                embed=discord.Embed(
+                    title="Error",
+                    description="If you want to type a phrases consider wrap them in \" or ' due to command parsing problems!",
+                )
+            )
         try:
             user = self.bot.fetch_user(user)
         except discord.NotFound:
@@ -69,6 +77,7 @@ class Moderation(commands.Cog):
                 ),
                 view=view,
             )
+            await view.wait()
             if view.value is None:
                 return await ctx.send(
                     embed=discord.Embed(
@@ -82,25 +91,27 @@ class Moderation(commands.Cog):
                     )
                 )
         await ctx.guild.ban(user, reason=reason)
+        d = utils.stuffs.random_id()
         await ctx.send(
             embed=discord.Embed(
                 title="{} has been kicked".format(user.name),
-                description="{} have been kicked from {}\nActioner: {}\nReason: {}\nWhen: {}".format(
+                description="{} have been kicked from {}\nActioner: {}\nReason: {}\nWhen: {}\nLog ID: {}".format(
                     user.name,
                     ctx.guild.name,
                     ctx.author.name,
                     reason,
                     now.strftime("%Y/%m/%d %H:%M:%S"),
+                    d,
                 ),
                 color=discord.Color.green(),
             )
         )
         async with aiofiles.open("db/logging.json") as fp:
-            db = await util.json.load(fp)
+            db = await utils.json.load(fp)
         try:
             db[str(ctx.guild.id)]["logs"].append(
                 {
-                    "id": util.stuffs.random_id(),
+                    "id": d,
                     "type": "kick",
                     "user": member.id,
                     "moderator": ctx.author.id,
@@ -112,7 +123,7 @@ class Moderation(commands.Cog):
             db[str(ctx.guild.id)] = {
                 "logs": [
                     {
-                        "id": util.stuffs.random_id(),
+                        "id": d,
                         "type": "kick",
                         "user": member.id,
                         "moderator": ctx.author.id,
@@ -123,7 +134,7 @@ class Moderation(commands.Cog):
             }
         await self.log(ctx, db, "hackbanned")
         async with aiofiles.open("db/logging.json", "w") as fp:
-            await util.json.dump(fp, db)
+            await utils.json.dump(fp, db)
 
     @commands.command(name="kick")
     @commands.has_permissions(kick_members=True)
@@ -142,6 +153,13 @@ class Moderation(commands.Cog):
         reason: The reason for kicking the member (default: No reason specified) (warning: Please wrap the reason in double quote or single quote.)
         disable asking: Whether or not to ask for confirmation (default: false)
         """
+        if disable_asking.lower() not in ("true", "false"):
+            return await ctx.send(
+                embed=discord.Embed(
+                    title="Error",
+                    description="If you want to type a phrases consider wrap them in \" or ' due to command parsing problems!",
+                )
+            )
         if member is None:
             return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
         if member == ctx.author:
@@ -173,6 +191,7 @@ class Moderation(commands.Cog):
                 ),
                 view=view,
             )
+            await view.wait()
             if view.value is None:
                 return await ctx.send(
                     embed=discord.Embed(
@@ -200,25 +219,27 @@ class Moderation(commands.Cog):
             )
         )
         await member.kick(reason=reason)
+        d = utils.stuffs.random_id()
         await ctx.send(
             embed=discord.Embed(
                 title="{} has been kicked".format(member.name),
-                description="{} have been kicked from {}\nActioner: {}\nReason: {}\nWhen: {}".format(
+                description="{} have been kicked from {}\nActioner: {}\nReason: {}\nWhen: {}\nLog ID: {}".format(
                     member.name,
                     ctx.guild.name,
                     ctx.author.name,
                     reason,
                     now.strftime("%Y/%m/%d %H:%M:%S"),
+                    d,
                 ),
                 color=discord.Color.green(),
             )
         )
         async with aiofiles.open("db/logging.json") as fp:
-            db = await util.json.load(fp)
+            db = await utils.json.load(fp)
         try:
             db[str(ctx.guild.id)]["logs"].append(
                 {
-                    "id": util.stuffs.random_id(),
+                    "id": d,
                     "type": "kick",
                     "user": member.id,
                     "moderator": ctx.author.id,
@@ -230,7 +251,7 @@ class Moderation(commands.Cog):
             db[str(ctx.guild.id)] = {
                 "logs": [
                     {
-                        "id": util.stuffs.random_id(),
+                        "id": d,
                         "type": "kick",
                         "user": member.id,
                         "moderator": ctx.author.id,
@@ -241,9 +262,9 @@ class Moderation(commands.Cog):
             }
         await self.log(ctx, db, "hackbanned")
         async with aiofiles.open("db/logging.json", "w") as fp:
-            await util.json.dump(fp, db)
+            await utils.json.dump(fp, db)
 
-    async def log(ctx: commands.Context, db: dict, action: str) -> None:
+    async def log(self, ctx: commands.Context, db: dict, action: str) -> None:
         try:
             channel = ctx.guild.get_channel(
                 int(db[str(ctx.guild.id)]["config"]["logging"])
@@ -283,6 +304,13 @@ class Moderation(commands.Cog):
         reason: The reason for banning the member (default: No reason specified) (warning: Please wrap the reason in double quote or single quote.)
         disable asking: Whether or not to ask for confirmation (default: false)
         """
+        if disable_asking.lower() not in ("true", "false"):
+            return await ctx.send(
+                embed=discord.Embed(
+                    title="Error",
+                    description="If you want to type a phrases consider wrap them in \" or ' due to command parsing problems!",
+                )
+            )
         if member is None:
             return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
         if member == ctx.author:
@@ -314,6 +342,7 @@ class Moderation(commands.Cog):
                 ),
                 view=view,
             )
+            await view.wait()
             if view.value is None:
                 return await ctx.send(
                     embed=discord.Embed(
@@ -340,25 +369,27 @@ class Moderation(commands.Cog):
             )
         )
         await member.ban(reason=reason)
+        d = utils.stuffs.random_id()
         await ctx.send(
             embed=discord.Embed(
                 title="{} has been banned".format(member.name),
-                description="{} have been banned from {}\nActioner: {}\nReason: {}\nWhen: {}".format(
+                description="{} have been banned from {}\nActioner: {}\nReason: {}\nWhen: {}\nLog ID: {}".format(
                     member.name,
                     ctx.guild.name,
                     ctx.author.name,
                     reason,
                     now.strftime("%Y/%m/%d %H:%M:%S"),
+                    d,
                 ),
                 color=discord.Color.green(),
             )
         )
         async with aiofiles.open("db/logging.json") as fp:
-            db = await util.json.load(fp)
+            db = await utils.json.load(fp)
         try:
             db[str(ctx.guild.id)]["logs"].append(
                 {
-                    "id": util.stuffs.random_id(),
+                    "id": d,
                     "type": "ban",
                     "user": member.id,
                     "moderator": ctx.author.id,
@@ -370,7 +401,7 @@ class Moderation(commands.Cog):
             db[str(ctx.guild.id)] = {
                 "logs": [
                     {
-                        "id": util.stuffs.random_id(),
+                        "id": d,
                         "type": "ban",
                         "user": member.id,
                         "moderator": ctx.author.id,
@@ -381,7 +412,7 @@ class Moderation(commands.Cog):
             }
         await self.log(ctx, db, "ban")
         async with aiofiles.open("db/logging.json", "w") as fp:
-            await util.json.dump(fp, db)
+            await utils.json.dump(fp, db)
 
     @commands.command(name="unban")
     @commands.has_permissions(ban_members=True)
@@ -400,6 +431,13 @@ class Moderation(commands.Cog):
         reason: The reason for unbanning the member (default: No reason specified) (warning: Please wrap the reason in double quote or single quote.)
         disable asking: Whether or not to ask for confirmation (default: false)
         """
+        if disable_asking.lower() not in ("true", "false"):
+            return await ctx.send(
+                embed=discord.Embed(
+                    title="Error",
+                    description="If you want to type a phrases consider wrap them in \" or ' due to command parsing problems!",
+                )
+            )
         if member is None:
             return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
         if not disable_asking == "false":
@@ -411,6 +449,7 @@ class Moderation(commands.Cog):
                 ),
                 view=view,
             )
+            await view.wait()
             if view.value is None:
                 return await ctx.send(
                     embed=discord.Embed(
@@ -425,6 +464,7 @@ class Moderation(commands.Cog):
                 )
         now = datetime.datetime.now()
         await ctx.guild.unban(member, reason=reason)
+        d = utils.stuffs.random_id()
         await ctx.send(
             embed=discord.Embed(
                 title="{} has been unbanned".format(member.name),
@@ -438,11 +478,11 @@ class Moderation(commands.Cog):
             )
         )
         async with aiofiles.open("db/logging.json") as fp:
-            db = await util.json.load(fp)
+            db = await utils.json.load(fp)
         try:
             db[str(ctx.guild.id)]["logs"].append(
                 {
-                    "id": util.stuffs.random_id(),
+                    "id": d,
                     "type": "unban",
                     "user": member.id,
                     "moderator": ctx.author.id,
@@ -454,7 +494,7 @@ class Moderation(commands.Cog):
             db[str(ctx.guild.id)] = {
                 "logs": [
                     {
-                        "id": util.stuffs.random_id(),
+                        "id": d,
                         "type": "unban",
                         "user": member.id,
                         "moderator": ctx.author.id,
@@ -465,7 +505,7 @@ class Moderation(commands.Cog):
             }
         await self.log(ctx, db, "unban")
         async with aiofiles.open("db/logging.json", "w") as fp:
-            await util.json.dump(fp, db)
+            await utils.json.dump(fp, db)
 
     def _parse_time(self, time: str) -> datetime.timedelta:
         """
@@ -508,6 +548,13 @@ class Moderation(commands.Cog):
         reason: The reason for muting the member (default: No reason specified) (warning: Please wrap the reason in double quote or single quote.)
         disable asking: Whether or not to ask for confirmation (default: false)
         """
+        if disable_asking.lower() not in ("true", "false"):
+            return await ctx.send(
+                embed=discord.Embed(
+                    title="Error",
+                    description="If you want to type a phrases consider wrap them in \" or ' due to command parsing problems!",
+                )
+            )
         if member is None:
             return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
         if not disable_asking == "false":
@@ -519,6 +566,7 @@ class Moderation(commands.Cog):
                 ),
                 view=view,
             )
+            await view.wait()
             if view.value is None:
                 return await ctx.send(
                     embed=discord.Embed(
@@ -543,6 +591,7 @@ class Moderation(commands.Cog):
                 ),
                 view=view,
             )
+            await view.wait()
             if view.value is None:
                 return await ctx.send(
                     embed=discord.Embed(
@@ -579,6 +628,7 @@ class Moderation(commands.Cog):
                 )
             )
         await member.timeout(self._parse_time(duration))
+        d = utils.stuffs.random_id()
         await ctx.send(
             embed=discord.Embed(
                 title="{} has been muted".format(member.name),
@@ -594,12 +644,12 @@ class Moderation(commands.Cog):
             )
         )
         async with aiofiles.open("db/logging.json") as fp:
-            db = await util.json.load(fp)
+            db = await utils.json.load(fp)
 
         try:
             db[str(ctx.guild.id)]["logs"].append(
                 {
-                    "id": util.stuffs.random_id(),
+                    "id": d,
                     "type": "mute",
                     "user": member.id,
                     "moderator": ctx.author.id,
@@ -612,7 +662,7 @@ class Moderation(commands.Cog):
             db[str(ctx.guild.id)] = {
                 "logs": [
                     {
-                        "id": util.stuffs.random_id(),
+                        "id": d,
                         "type": "mute",
                         "user": member.id,
                         "moderator": ctx.author.id,
@@ -624,7 +674,7 @@ class Moderation(commands.Cog):
             }
         await self.log(ctx, db, "mute")
         async with aiofiles.open("db/logging.json", "w") as fp:
-            await util.json.dump(fp, db)
+            await utils.json.dump(fp, db)
 
     @commands.command(name="unmute", aliases=["untimeout", "untm", "um"])
     @commands.has_permissions(manage_roles=True)
@@ -652,6 +702,7 @@ class Moderation(commands.Cog):
                 ),
                 view=view,
             )
+            await view.wait()
             if view.value is None:
                 return await ctx.send(
                     embed=discord.Embed(
@@ -673,6 +724,7 @@ class Moderation(commands.Cog):
                 )
             )
         await member.timeout(datetime.timedelta(seconds=0))
+        d = utils.stuffs.random_id()
         await ctx.send(
             embed=discord.Embed(
                 title="{} has been unmuted".format(member.name),
@@ -683,12 +735,12 @@ class Moderation(commands.Cog):
             )
         )
         async with aiofiles.open("db/logging.json") as fp:
-            db = await util.json.load(fp)
+            db = await utils.json.load(fp)
 
         try:
             db[str(ctx.guild.id)]["logs"].append(
                 {
-                    "id": util.stuffs.random_id(),
+                    "id": d,
                     "type": "unmute",
                     "user": member.id,
                     "moderator": ctx.author.id,
@@ -699,7 +751,7 @@ class Moderation(commands.Cog):
             db[str(ctx.guild.id)] = {
                 "logs": [
                     {
-                        "id": util.stuffs.random_id(),
+                        "id": d,
                         "type": "unmute",
                         "user": member.id,
                         "moderator": ctx.author.id,
@@ -709,7 +761,7 @@ class Moderation(commands.Cog):
             }
         await self.log(ctx, db, "unmute")
         async with aiofiles.open("db/logging.json", "w") as fp:
-            await util.json.dump(fp, db)
+            await utils.json.dump(fp, db)
 
     @commands.command(name="warn")
     @commands.has_permissions(manage_roles=True)
@@ -718,7 +770,7 @@ class Moderation(commands.Cog):
         ctx: commands.Context,
         member: discord.Member = None,
         reason: str = "No reason provided",
-        disable_asking: str = "false",
+        disable_asking: str = "true",
     ) -> None:
         """
         Warn the member
@@ -728,6 +780,13 @@ class Moderation(commands.Cog):
         reason: The reason for the warn
         disable asking: Whether or not to ask for confirmation (default: false)
         """
+        if disable_asking.lower() not in ("true", "false"):
+            return await ctx.send(
+                embed=discord.Embed(
+                    title="Error",
+                    description="If you want to type a phrases consider wrap them in \" or ' due to command parsing problems!",
+                )
+            )
         if member is None:
             return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
         if not disable_asking == "false":
@@ -739,6 +798,7 @@ class Moderation(commands.Cog):
                 ),
                 view=view,
             )
+            await view.wait()
             if view.value is None:
                 return await ctx.send(
                     embed=discord.Embed(
@@ -769,13 +829,26 @@ class Moderation(commands.Cog):
                 color=discord.Color.red(),
             )
         )
+        d = utils.stuffs.random_id()
+        await ctx.send(
+            embed=discord.Embed(
+                title="{} has been warned".format(member.name),
+                description="{} have been warned\nActioner: {}\nReason: {}\nTime: {}".format(
+                    member.name,
+                    ctx.author.name,
+                    reason,
+                    now.strftime("%Y/%m/%d %H:%M:%S"),
+                ),
+                color=discord.Color.green(),
+            )
+        )
         async with aiofiles.open("db/logging.json") as fp:
-            db = await util.json.load(fp)
+            db = await utils.json.load(fp)
 
         try:
             db[str(ctx.guild.id)]["logs"].append(
                 {
-                    "id": util.stuffs.random_id(),
+                    "id": d,
                     "type": "warn",
                     "user": member.id,
                     "moderator": ctx.author.id,
@@ -787,7 +860,7 @@ class Moderation(commands.Cog):
             db[str(ctx.guild.id)] = {
                 "logs": [
                     {
-                        "id": util.stuffs.random_id(),
+                        "id": d,
                         "type": "warn",
                         "user": member.id,
                         "moderator": ctx.author.id,
@@ -798,7 +871,7 @@ class Moderation(commands.Cog):
             }
         await self.log(ctx, db, "warn")
         async with aiofiles.open("db/logging.json", "w") as fp:
-            await util.json.dump(fp, db)
+            await utils.json.dump(fp, db)
 
     @commands.command(name="delwarn")
     @commands.has_permissions(manage_roles=True)
@@ -817,6 +890,13 @@ class Moderation(commands.Cog):
         reason: The reason for the deletion
         disable asking: Whether or not to ask for confirmation (default: false)
         """
+        if disable_asking.lower() not in ("true", "false"):
+            return await ctx.send(
+                embed=discord.Embed(
+                    title="Error",
+                    description="If you want to type a phrases consider wrap them in \" or ' due to command parsing problems!",
+                )
+            )
         if not disable_asking == "false":
             view = utils.views.Confirm()
             await ctx.send(
@@ -826,6 +906,7 @@ class Moderation(commands.Cog):
                 ),
                 view=view,
             )
+            await view.wait()
             if view.value is None:
                 return await ctx.send(
                     embed=discord.Embed(
@@ -839,10 +920,18 @@ class Moderation(commands.Cog):
                     )
                 )
         async with aiofiles.open("db/logging.json") as fp:
-            db = await util.json.load(fp)
+            db = await utils.json.load(fp)
         try:
             for i in db[str(ctx.guild.id)]["logs"]:
                 if i["id"] == id:
+                    if i["type"] != "warn":
+                        return await ctx.send(
+                            embed=discord.Embed(
+                                title="This isn't a warning",
+                                description="This isn't a warning",
+                                color=discord.Color.red(),
+                            )
+                        )
                     db[str(ctx.guild.id)]["logs"].remove(i)
                     await ctx.send(
                         embed=discord.Embed(
@@ -854,7 +943,7 @@ class Moderation(commands.Cog):
                         )
                     )
                     async with aiofiles.open("db/logging.json", "w") as fp:
-                        await util.json.dump(fp, db)
+                        await utils.json.dump(fp, db)
                     return
         except KeyError:
             return await ctx.send(
@@ -884,7 +973,7 @@ class Moderation(commands.Cog):
         if member is None:
             return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
         async with aiofiles.open("db/logging.json") as fp:
-            db = await util.json.load(fp)
+            db = await utils.json.load(fp)
         try:
             warns = db[str(ctx.guild.id)]["logs"]
         except KeyError:
@@ -896,7 +985,7 @@ class Moderation(commands.Cog):
                 )
             )
         try:
-            warns = [i for i in warns if i["user"] == member.id]
+            warns = [i for i in warns if i["user"] == member.id and i["type"] == "warn"]
         except KeyError:
             return await ctx.send(
                 embed=discord.Embed(
@@ -942,6 +1031,62 @@ class Moderation(commands.Cog):
                 title="Purged {} messages".format(amount), color=discord.Color.red()
             )
         )
+
+    @commands.command(name="getlogs", aliases=["log"])
+    @commands.has_permissions(manage_messages=True)
+    async def getlog(self, ctx: commands.Context, id: str = None):
+        """
+        Get log with ID
+
+        Required arguments:
+        id: The id of the log to get
+        """
+        if id is None:
+            return await ctx.send(embed=utils.embedgen.error_required_arg("id"))
+        async with aiofiles.open("db/logging.json") as fp:
+            db = await utils.json.load(fp)
+        try:
+            logs = db[str(ctx.guild.id)]["logs"]
+        except KeyError:
+            return await ctx.send(
+                embed=discord.Embed(
+                    title="There are no logs",
+                    description="There are no logs",
+                    color=discord.Color.red(),
+                )
+            )
+        try:
+            logs = [i for i in logs if i["id"] == id]
+        except KeyError:
+            return await ctx.send(
+                embed=discord.Embed(
+                    title="There are no logs",
+                    description="There are no logs",
+                    color=discord.Color.red(),
+                )
+            )
+        if not logs:
+            return await ctx.send(
+                embed=discord.Embed(
+                    title="There are no logs",
+                    description="There are no logs",
+                    color=discord.Color.red(),
+                )
+            )
+        embed = discord.Embed(
+            title="Log with ID {}".format(id),
+            description="Log with ID {}".format(id),
+            color=discord.Color.red(),
+        )
+        for i in logs:
+            embed.add_field(name="Reason", value=i["reason"], inline=False)
+            embed.add_field(
+                name="Moderator",
+                value=ctx.guild.get_member(i["moderator"]).name,
+                inline=False,
+            )
+            embed.add_field(name="When", value=i["when"], inline=False)
+        await ctx.send(embed=embed)
 
 
 async def setup(bot: commands.Bot) -> None:
