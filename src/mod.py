@@ -10,9 +10,9 @@ import aiofiles
 
 import utils.embedgen
 import utils.json
+import utils.logger
 import utils.stuffs
 import utils.views
-import utils.logger
 
 
 class Moderation(commands.Cog):

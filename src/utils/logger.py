@@ -1,9 +1,12 @@
-import discord
-from enum import Enum
 import typing
+from enum import Enum
+
 import aiofiles
-from . import json
+import discord
 import plum
+
+from . import json
+
 
 class Types:
     kick = "kick"
@@ -14,6 +17,7 @@ class Types:
     unmute = "unmute"
     delwarn = "delwarn"
     purge = "purge"
+
 
 @plum.dispatch
 async def log(
@@ -55,6 +59,7 @@ async def log(
         }
     async with aiofiles.open("db/logging.json", "w") as fp:
         await json.dump(data, fp)
+
 
 @plum.dispatch
 async def log(
