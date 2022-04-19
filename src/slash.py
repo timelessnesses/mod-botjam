@@ -7,6 +7,7 @@ sys.path.append("src")
 import datetime
 
 import aiofiles
+from discord import app_commands
 
 import utils.embedgen
 import utils.json
@@ -14,15 +15,91 @@ import utils.stuffs
 import utils.views
 
 
-class Moderation(commands.Cog):
+class Slashes(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @commands.command(name="hackban", aliases=["hb"])
+    @app_commands.command(name="help")
+    async def help(self, interaction, command: str = None):
+        """Shows help about a command or the bot"""
+        print(command)
+        if command is None:
+            embed = discord.Embed(
+                title="Help", description="", color=discord.Color.blue()
+            )
+            for command in self.bot.commands:
+                if command.hidden:
+                    continue
+                if command.aliases:
+                    aliases = " | ".join(command.aliases)
+                    embed.add_field(
+                        name=f"{command.name} | {aliases}",
+                        value=command.help,
+                        inline=True,
+                    )
+                else:
+                    embed.add_field(name=command.name, value=command.help, inline=True)
+            await interaction.response.send_message(embed=embed)
+
+        else:
+            command = self.bot.get_command(command)
+            if command is None:
+                await interaction.response.send_message("That command does not exist.")
+                return
+            embed = discord.Embed(
+                title=f"Help: {command.name}",
+                description=command.help,
+                color=discord.Color.blue(),
+            )
+            embed.add_field(name="Usage", value=command.usage)
+            embed.add_field(
+                name="Aliases",
+                value=", ".join(command.aliases) if command.aliases else "None",
+            )
+            await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="ping", aliases=["p"])
+    async def ping(self, interaction: discord.Interaction) -> None:
+        embed = discord.Embed(
+            title="Pong!",
+            description=f"{round(self.bot.latency * 1000)}ms from API websocket",
+        )
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="status")
+    async def status(self, interaction: discord.Interaction) -> None:
+        embed = discord.Embed(
+            title="Status", description="Bot status", color=discord.Color.green()
+        )
+        embed.add_field(name="CPU", value=f"{psutil.cpu_percent()}%")
+        embed.add_field(name="RAM", value=f"{psutil.virtual_memory().percent}%")
+        embed.add_field(name="Disk", value=f"{psutil.disk_usage('/').percent}%")
+        embed.add_field(name="Uptime", value=f"{round(self.bot.uptime / 60)} minutes")
+        embed.add_field(name="Python", value=f"{platform.python_version()}")
+        embed.add_field(name="Discord.py", value=f"{discord.__version__}")
+        embed.add_field(name="Bot version", value=f"{self.bot.version_}")
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="credits", aliases=["c"])
+    async def credits(self, interaction: discord.Interaction) -> None:
+        embed = discord.Embed(
+            title="Credits", description="Thanks to everyone who using this bot!"
+        )
+
+        embed.add_field(name="Creator", value="[Unpredictable#9443] ")
+        embed.add_field(name="Contributors", value="None")
+        embed.add_field(
+            name="Special thanks",
+            value="[X19Z10#1125] for modal idea (modal is kinda sucks rn so yea i won't add it)",
+        )
+
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="hackban", aliases=["hb"])
     @commands.has_permissions(ban_members=True)
     async def hackban(
         self,
-        ctx: discord.Interaction,
+        interaction: discord.Interaction,
         user: int,
         reason: str = "No reason provided",
     ) -> None:
@@ -37,7 +114,7 @@ class Moderation(commands.Cog):
         try:
             user = self.bot.fetch_user(user)
         except discord.NotFound:
-            return await ctx.send(
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="Error",
                     description="User not found",
@@ -45,15 +122,15 @@ class Moderation(commands.Cog):
                 )
             )
         except discord.HTTPException:
-            return await ctx.send(
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="Error",
                     description="Failed to fetch user from API",
                     color=discord.Color.red(),
                 )
             )
-        if user.id == ctx.bot.user.id:
-            return await ctx.send(
+        if user.id == interaction.bot.user.id:
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="Error",
                     description="Why you want to ban me :(",
@@ -62,7 +139,7 @@ class Moderation(commands.Cog):
             )
         if not disable_asking == "false":
             view = utils.views.Confirm()
-            await ctx.send(
+            await interaction.response.send_message(
                 embed=discord.Embed(
                     title="Are you sure you want to kick {}?".format(member.name),
                     color=discord.Color.red(),
@@ -70,25 +147,25 @@ class Moderation(commands.Cog):
                 view=view,
             )
             if view.value is None:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You're too slow!", color=discord.Color.red()
                     )
                 )
             if not view.value:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You cancelled the kick", color=discord.Color.red()
                     )
                 )
-        await ctx.guild.ban(user, reason=reason)
-        await ctx.send(
+        await interaction.guild.ban(user, reason=reason)
+        await interaction.response.send_message(
             embed=discord.Embed(
                 title="{} has been kicked".format(user.name),
                 description="{} have been kicked from {}\nActioner: {}\nReason: {}\nWhen: {}".format(
                     user.name,
-                    ctx.guild.name,
-                    ctx.author.name,
+                    interaction.guild.name,
+                    interaction.author.name,
                     reason,
                     now.strftime("%Y/%m/%d %H:%M:%S"),
                 ),
@@ -98,39 +175,39 @@ class Moderation(commands.Cog):
         async with aiofiles.open("db/logging.json") as fp:
             db = await util.json.load(fp)
         try:
-            db[str(ctx.guild.id)]["logs"].append(
+            db[str(interaction.guild.id)]["logs"].append(
                 {
                     "id": util.stuffs.random_id(),
                     "type": "kick",
                     "user": member.id,
-                    "moderator": ctx.author.id,
+                    "moderator": interaction.author.id,
                     "reason": reason,
                     "when": now.strftime("%Y/%m/%d %H:%M:%S"),
                 }
             )
         except KeyError:
-            db[str(ctx.guild.id)] = {
+            db[str(interaction.guild.id)] = {
                 "logs": [
                     {
                         "id": util.stuffs.random_id(),
                         "type": "kick",
                         "user": member.id,
-                        "moderator": ctx.author.id,
+                        "moderator": interaction.author.id,
                         "reason": reason,
                         "when": now.strftime("%Y/%m/%d %H:%M:%S"),
                     }
                 ]
             }
-        await self.log(ctx, db, "hackbanned")
+        await self.log(interaction, db, "hackbanned")
         async with aiofiles.open("db/logging.json", "w") as fp:
             await util.json.dump(fp, db)
 
-    @commands.command(name="kick")
+    @app_commands.command(name="kick")
     @commands.has_permissions(kick_members=True)
     async def kick(
         self,
-        ctx: commands.Context,
-        member: discord.Member = None,
+        interaction: discord.Interaction,
+        member: discord.Member,
         reason: str = "No reason specified",
         disable_asking: str = "false",
     ) -> None:
@@ -143,22 +220,24 @@ class Moderation(commands.Cog):
         disable asking: Whether or not to ask for confirmation (default: false)
         """
         if member is None:
-            return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
-        if member == ctx.author:
-            return await ctx.send(
+            return await interaction.response.send_message(
+                embed=utils.embedgen.error_required_arg("member")
+            )
+        if member == interaction.author:
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="You can't kick yourself", color=discord.Color.red()
                 )
             )
         if member == self.bot.user:
-            return await ctx.send(
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="Why you want to kick me. :( I am sad now.",
                     color=discord.Color.red(),
                 )
             )
-        if member.top_role.position >= ctx.author.top_role.position:
-            return await ctx.send(
+        if member.top_role.position >= interaction.author.top_role.position:
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="You can't kick someone who has a higher role than you",
                     color=discord.Color.red(),
@@ -166,7 +245,7 @@ class Moderation(commands.Cog):
             )
         if not disable_asking == "false":
             view = utils.views.Confirm()
-            await ctx.send(
+            await interaction.response.send_message(
                 embed=discord.Embed(
                     title="Are you sure you want to kick {}?".format(member.name),
                     color=discord.Color.red(),
@@ -174,13 +253,13 @@ class Moderation(commands.Cog):
                 view=view,
             )
             if view.value is None:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You're too slow!", color=discord.Color.red()
                     )
                 )
             if not view.value:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You cancelled the kick", color=discord.Color.red()
                     )
@@ -189,10 +268,10 @@ class Moderation(commands.Cog):
         now = datetime.datetime.now()
         await member.send(
             embed=discord.Embed(
-                title="You have been kicked from {}".format(ctx.guild.name),
+                title="You have been kicked from {}".format(interaction.guild.name),
                 description="You have been kicked from {}\nActioner: {}\nReason: {}\nWhen: {}".format(
-                    ctx.guild.name,
-                    ctx.author.name,
+                    interaction.guild.name,
+                    interaction.author.name,
                     reason,
                     now.strftime("%Y/%m/%d %H:%M:%S"),
                 ),
@@ -200,13 +279,13 @@ class Moderation(commands.Cog):
             )
         )
         await member.kick(reason=reason)
-        await ctx.send(
+        await interaction.response.send_message(
             embed=discord.Embed(
                 title="{} has been kicked".format(member.name),
                 description="{} have been kicked from {}\nActioner: {}\nReason: {}\nWhen: {}".format(
                     member.name,
-                    ctx.guild.name,
-                    ctx.author.name,
+                    interaction.guild.name,
+                    interaction.author.name,
                     reason,
                     now.strftime("%Y/%m/%d %H:%M:%S"),
                 ),
@@ -216,37 +295,37 @@ class Moderation(commands.Cog):
         async with aiofiles.open("db/logging.json") as fp:
             db = await util.json.load(fp)
         try:
-            db[str(ctx.guild.id)]["logs"].append(
+            db[str(interaction.guild.id)]["logs"].append(
                 {
                     "id": util.stuffs.random_id(),
                     "type": "kick",
                     "user": member.id,
-                    "moderator": ctx.author.id,
+                    "moderator": interaction.author.id,
                     "reason": reason,
                     "when": now.strftime("%Y/%m/%d %H:%M:%S"),
                 }
             )
         except KeyError:
-            db[str(ctx.guild.id)] = {
+            db[str(interaction.guild.id)] = {
                 "logs": [
                     {
                         "id": util.stuffs.random_id(),
                         "type": "kick",
                         "user": member.id,
-                        "moderator": ctx.author.id,
+                        "moderator": interaction.author.id,
                         "reason": reason,
                         "when": now.strftime("%Y/%m/%d %H:%M:%S"),
                     }
                 ]
             }
-        await self.log(ctx, db, "hackbanned")
+        await self.log(interaction, db, "kicked")
         async with aiofiles.open("db/logging.json", "w") as fp:
             await util.json.dump(fp, db)
 
-    async def log(ctx: commands.Context, db: dict, action: str) -> None:
+    async def log(interaction: discord.Interaction, db: dict, action: str) -> None:
         try:
-            channel = ctx.guild.get_channel(
-                int(db[str(ctx.guild.id)]["config"]["logging"])
+            channel = interaction.guild.get_channel(
+                int(db[str(interaction.guild.id)]["config"]["logging"])
             )
         except KeyError:
             return
@@ -255,10 +334,10 @@ class Moderation(commands.Cog):
         embed = discord.Embed(
             title="Member {}".format(action),
             description="{} has been {} from {}\nActioner: {}\nReason: {}\nWhen: {}".format(
-                ctx.author.name,
+                interaction.author.name,
                 action,
-                ctx.guild.name,
-                ctx.author.name,
+                interaction.guild.name,
+                interaction.author.name,
                 reason,
                 now.strftime("%Y/%m/%d %H:%M:%S"),
             ),
@@ -266,12 +345,12 @@ class Moderation(commands.Cog):
         )
         await channel.send(embed=embed)
 
-    @commands.command(name="ban")
+    @app_commands.command(name="ban")
     @commands.has_permissions(ban_members=True)
     async def ban(
         self,
-        ctx: commands.Context,
-        member: discord.Member = None,
+        interaction: discord.Interaction,
+        member: discord.Member,
         reason: str = "No reason specified",
         disable_asking: str = "false",
     ) -> None:
@@ -284,22 +363,24 @@ class Moderation(commands.Cog):
         disable asking: Whether or not to ask for confirmation (default: false)
         """
         if member is None:
-            return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
-        if member == ctx.author:
-            return await ctx.send(
+            return await interaction.response.send_message(
+                embed=utils.embedgen.error_required_arg("member")
+            )
+        if member == interaction.author:
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="You can't ban yourself", color=discord.Color.red()
                 )
             )
         if member == self.bot.user:
-            return await ctx.send(
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="Why you want to ban me. :( I am sad now.",
                     color=discord.Color.red(),
                 )
             )
-        if member.top_role.position >= ctx.author.top_role.position:
-            return await ctx.send(
+        if member.top_role.position >= interaction.author.top_role.position:
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="You can't ban someone who has a higher role than you",
                     color=discord.Color.red(),
@@ -307,7 +388,7 @@ class Moderation(commands.Cog):
             )
         if not disable_asking == "false":
             view = utils.views.Confirm()
-            await ctx.send(
+            await interaction.response.send_message(
                 embed=discord.Embed(
                     title="Are you sure you want to ban {}?".format(member.name),
                     color=discord.Color.red(),
@@ -315,13 +396,13 @@ class Moderation(commands.Cog):
                 view=view,
             )
             if view.value is None:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You're too slow!", color=discord.Color.red()
                     )
                 )
             if not view.value:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You cancelled the ban", color=discord.Color.red()
                     )
@@ -329,10 +410,10 @@ class Moderation(commands.Cog):
         now = datetime.datetime.now()
         await member.send(
             embed=discord.Embed(
-                title="You have been banned from {}".format(ctx.guild.name),
+                title="You have been banned from {}".format(interaction.guild.name),
                 description="You have been banned from {}\nActioner: {}\nReason: {}\nWhen: {}".format(
-                    ctx.guild.name,
-                    ctx.author.name,
+                    interaction.guild.name,
+                    interaction.author.name,
                     reason,
                     now.strftime("%Y/%m/%d %H:%M:%S"),
                 ),
@@ -340,13 +421,13 @@ class Moderation(commands.Cog):
             )
         )
         await member.ban(reason=reason)
-        await ctx.send(
+        await interaction.response.send_message(
             embed=discord.Embed(
                 title="{} has been banned".format(member.name),
                 description="{} have been banned from {}\nActioner: {}\nReason: {}\nWhen: {}".format(
                     member.name,
-                    ctx.guild.name,
-                    ctx.author.name,
+                    interaction.guild.name,
+                    interaction.author.name,
                     reason,
                     now.strftime("%Y/%m/%d %H:%M:%S"),
                 ),
@@ -356,39 +437,39 @@ class Moderation(commands.Cog):
         async with aiofiles.open("db/logging.json") as fp:
             db = await util.json.load(fp)
         try:
-            db[str(ctx.guild.id)]["logs"].append(
+            db[str(interaction.guild.id)]["logs"].append(
                 {
                     "id": util.stuffs.random_id(),
                     "type": "ban",
                     "user": member.id,
-                    "moderator": ctx.author.id,
+                    "moderator": interaction.author.id,
                     "reason": reason,
                     "when": now.strftime("%Y/%m/%d %H:%M:%S"),
                 }
             )
         except KeyError:
-            db[str(ctx.guild.id)] = {
+            db[str(interaction.guild.id)] = {
                 "logs": [
                     {
                         "id": util.stuffs.random_id(),
                         "type": "ban",
                         "user": member.id,
-                        "moderator": ctx.author.id,
+                        "moderator": interaction.author.id,
                         "reason": reason,
                         "when": now.strftime("%Y/%m/%d %H:%M:%S"),
                     }
                 ]
             }
-        await self.log(ctx, db, "ban")
+        await self.log(interaction, db, "ban")
         async with aiofiles.open("db/logging.json", "w") as fp:
             await util.json.dump(fp, db)
 
-    @commands.command(name="unban")
+    @app_commands.command(name="unban")
     @commands.has_permissions(ban_members=True)
     async def unban(
         self,
-        ctx: commands.Context,
-        member: discord.User = None,
+        interaction: discord.Interaction,
+        member: discord.User,
         reason: str = "No reason specified",
         disable_asking: str = "false",
     ) -> None:
@@ -401,10 +482,12 @@ class Moderation(commands.Cog):
         disable asking: Whether or not to ask for confirmation (default: false)
         """
         if member is None:
-            return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
+            return await interaction.response.send_message(
+                embed=utils.embedgen.error_required_arg("member")
+            )
         if not disable_asking == "false":
             view = utils.views.Confirm()
-            await ctx.send(
+            await interaction.response.send_message(
                 embed=discord.Embed(
                     title="Are you sure you want to unban {}?".format(member.name),
                     color=discord.Color.red(),
@@ -412,25 +495,25 @@ class Moderation(commands.Cog):
                 view=view,
             )
             if view.value is None:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You're too slow!", color=discord.Color.red()
                     )
                 )
             if not view.value:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You cancelled the unban", color=discord.Color.red()
                     )
                 )
         now = datetime.datetime.now()
-        await ctx.guild.unban(member, reason=reason)
-        await ctx.send(
+        await interaction.guild.unban(member, reason=reason)
+        await interaction.response.send_message(
             embed=discord.Embed(
                 title="{} has been unbanned".format(member.name),
                 description="You have been unbanned from {}\nActioner: {}\nReason: {}\nWhen: {}".format(
-                    ctx.guild.name,
-                    ctx.author.name,
+                    interaction.guild.name,
+                    interaction.author.name,
                     reason,
                     now.strftime("%Y/%m/%d %H:%M:%S"),
                 ),
@@ -440,30 +523,30 @@ class Moderation(commands.Cog):
         async with aiofiles.open("db/logging.json") as fp:
             db = await util.json.load(fp)
         try:
-            db[str(ctx.guild.id)]["logs"].append(
+            db[str(interaction.guild.id)]["logs"].append(
                 {
                     "id": util.stuffs.random_id(),
                     "type": "unban",
                     "user": member.id,
-                    "moderator": ctx.author.id,
+                    "moderator": interaction.author.id,
                     "reason": reason,
                     "when": now.strftime("%Y/%m/%d %H:%M:%S"),
                 }
             )
         except KeyError:
-            db[str(ctx.guild.id)] = {
+            db[str(interaction.guild.id)] = {
                 "logs": [
                     {
                         "id": util.stuffs.random_id(),
                         "type": "unban",
                         "user": member.id,
-                        "moderator": ctx.author.id,
+                        "moderator": interaction.author.id,
                         "reason": reason,
                         "when": now.strftime("%Y/%m/%d %H:%M:%S"),
                     }
                 ]
             }
-        await self.log(ctx, db, "unban")
+        await self.log(interaction, db, "unban")
         async with aiofiles.open("db/logging.json", "w") as fp:
             await util.json.dump(fp, db)
 
@@ -489,12 +572,12 @@ class Moderation(commands.Cog):
         else:
             return datetime.timedelta(seconds=int(time))
 
-    @commands.command(name="mute", aliases=["timeout", "tm", "m"])
+    @app_commands.command(name="mute", aliases=["timeout", "tm", "m"])
     @commands.has_permissions(manage_roles=True)
     async def mute(
         self,
-        ctx: commands.Context,
-        member: discord.Member = None,
+        interaction: discord.Interaction,
+        member: discord.Member,
         duration: str = "6h",
         reason: str = "No reason specified",
         disable_asking: str = "false",
@@ -509,10 +592,12 @@ class Moderation(commands.Cog):
         disable asking: Whether or not to ask for confirmation (default: false)
         """
         if member is None:
-            return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
+            return await interaction.response.send_message(
+                embed=utils.embedgen.error_required_arg("member")
+            )
         if not disable_asking == "false":
             view = utils.views.Confirm()
-            await ctx.send(
+            await interaction.response.send_message(
                 embed=discord.Embed(
                     title="Are you sure you want to mute {}?".format(member.name),
                     color=discord.Color.red(),
@@ -520,20 +605,20 @@ class Moderation(commands.Cog):
                 view=view,
             )
             if view.value is None:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You're too slow!", color=discord.Color.red()
                     )
                 )
             if not view.value:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You cancelled the mute", color=discord.Color.red()
                     )
                 )
         if self._parse_time(duration) == datetime.timedelta(seconds=0):
             view = utils.views.Confirm()
-            await ctx.send(
+            await interaction.response.send_message(
                 embed=discord.Embed(
                     title="WARNING",
                     color=discord.Color.red(),
@@ -544,13 +629,13 @@ class Moderation(commands.Cog):
                 view=view,
             )
             if view.value is None:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You're too slow!", color=discord.Color.red()
                     )
                 )
             if not view.value:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You cancelled the unmute process!",
                         color=discord.Color.red(),
@@ -560,18 +645,18 @@ class Moderation(commands.Cog):
         if (
             self._parse_time(duration).total_seconds() >= 2419200
         ):  # 28 days due to discord's time limit
-            return await ctx.send(
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="You need to specify a duration",
                     color=discord.Color.red(),
                     description="The duration must be less than 28 days.\nExample: `{}mute @user 1h`".format(
-                        ctx.prefix
+                        interaction.prefix
                     ),
                 )
             )
         now = datetime.datetime.now()
-        if member.top_role.position >= ctx.author.top_role.position:
-            return await ctx.send(
+        if member.top_role.position >= interaction.author.top_role.position:
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="You can't mute this user",
                     description="The user has a higher role than you",
@@ -579,13 +664,13 @@ class Moderation(commands.Cog):
                 )
             )
         await member.timeout(self._parse_time(duration))
-        await ctx.send(
+        await interaction.response.send_message(
             embed=discord.Embed(
                 title="{} has been muted".format(member.name),
                 description="{} have been muted in {}\nActioner: {}\nReason: {}\nDuration: {}\nWhen: {}".format(
                     member.name,
-                    ctx.guild.name,
-                    ctx.author.name,
+                    interaction.guild.name,
+                    interaction.author.name,
                     reason,
                     duration,
                     now.strftime("%Y/%m/%d %H:%M:%S"),
@@ -597,41 +682,41 @@ class Moderation(commands.Cog):
             db = await util.json.load(fp)
 
         try:
-            db[str(ctx.guild.id)]["logs"].append(
+            db[str(interaction.guild.id)]["logs"].append(
                 {
                     "id": util.stuffs.random_id(),
                     "type": "mute",
                     "user": member.id,
-                    "moderator": ctx.author.id,
+                    "moderator": interaction.author.id,
                     "reason": reason,
                     "when": now.strftime("%Y/%m/%d %H:%M:%S"),
                     "duration": duration,
                 }
             )
         except KeyError:
-            db[str(ctx.guild.id)] = {
+            db[str(interaction.guild.id)] = {
                 "logs": [
                     {
                         "id": util.stuffs.random_id(),
                         "type": "mute",
                         "user": member.id,
-                        "moderator": ctx.author.id,
+                        "moderator": interaction.author.id,
                         "reason": reason,
                         "when": now.strftime("%Y/%m/%d %H:%M:%S"),
                         "duration": duration,
                     }
                 ]
             }
-        await self.log(ctx, db, "mute")
+        await self.log(interaction, db, "mute")
         async with aiofiles.open("db/logging.json", "w") as fp:
             await util.json.dump(fp, db)
 
-    @commands.command(name="unmute", aliases=["untimeout", "untm", "um"])
+    @app_commands.command(name="unmute", aliases=["untimeout", "untm", "um"])
     @commands.has_permissions(manage_roles=True)
     async def unmute(
         self,
-        ctx: commands.Context,
-        member: discord.Member = None,
+        interaction: discord.Interaction,
+        member: discord.Member,
         disable_asking: str = "false",
     ) -> None:
         """
@@ -642,10 +727,12 @@ class Moderation(commands.Cog):
         disable asking: Whether or not to ask for confirmation (default: false)
         """
         if member is None:
-            return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
+            return await interaction.response.send_message(
+                embed=utils.embedgen.error_required_arg("member")
+            )
         if not disable_asking == "false":
             view = utils.views.Confirm()
-            await ctx.send(
+            await interaction.response.send_message(
                 embed=discord.Embed(
                     title="Are you sure you want to unmute {}?".format(member.name),
                     color=discord.Color.red(),
@@ -653,19 +740,19 @@ class Moderation(commands.Cog):
                 view=view,
             )
             if view.value is None:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You're too slow!", color=discord.Color.red()
                     )
                 )
             if not view.value:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You cancelled the unmute", color=discord.Color.red()
                     )
                 )
-        if member.top_role.position >= ctx.author.top_role.position:
-            return await ctx.send(
+        if member.top_role.position >= interaction.author.top_role.position:
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="You can't unmute this user",
                     description="The user has a higher role than you",
@@ -673,11 +760,11 @@ class Moderation(commands.Cog):
                 )
             )
         await member.timeout(datetime.timedelta(seconds=0))
-        await ctx.send(
+        await interaction.response.send_message(
             embed=discord.Embed(
                 title="{} has been unmuted".format(member.name),
                 description="{} have been unmuted\nActioner: {}".format(
-                    member.name, ctx.author.name
+                    member.name, interaction.author.name
                 ),
                 color=discord.Color.green(),
             )
@@ -686,37 +773,37 @@ class Moderation(commands.Cog):
             db = await util.json.load(fp)
 
         try:
-            db[str(ctx.guild.id)]["logs"].append(
+            db[str(interaction.guild.id)]["logs"].append(
                 {
                     "id": util.stuffs.random_id(),
                     "type": "unmute",
                     "user": member.id,
-                    "moderator": ctx.author.id,
+                    "moderator": interaction.author.id,
                     "when": datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
                 }
             )
         except KeyError:
-            db[str(ctx.guild.id)] = {
+            db[str(interaction.guild.id)] = {
                 "logs": [
                     {
                         "id": util.stuffs.random_id(),
                         "type": "unmute",
                         "user": member.id,
-                        "moderator": ctx.author.id,
+                        "moderator": interaction.author.id,
                         "when": datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
                     }
                 ]
             }
-        await self.log(ctx, db, "unmute")
+        await self.log(interaction, db, "unmute")
         async with aiofiles.open("db/logging.json", "w") as fp:
             await util.json.dump(fp, db)
 
-    @commands.command(name="warn")
+    @app_commands.command(name="warn")
     @commands.has_permissions(manage_roles=True)
     async def warn(
         self,
-        ctx: commands.Context,
-        member: discord.Member = None,
+        interaction: discord.Interaction,
+        member: discord.Member,
         reason: str = "No reason provided",
         disable_asking: str = "false",
     ) -> None:
@@ -729,10 +816,12 @@ class Moderation(commands.Cog):
         disable asking: Whether or not to ask for confirmation (default: false)
         """
         if member is None:
-            return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
+            return await interaction.response.send_message(
+                embed=utils.embedgen.error_required_arg("member")
+            )
         if not disable_asking == "false":
             view = utils.views.Confirm()
-            await ctx.send(
+            await interaction.response.send_message(
                 embed=discord.Embed(
                     title="Are you sure you want to warn {}?".format(member.name),
                     color=discord.Color.red(),
@@ -740,19 +829,19 @@ class Moderation(commands.Cog):
                 view=view,
             )
             if view.value is None:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You're too slow!", color=discord.Color.red()
                     )
                 )
             if not view.value:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You cancelled the warn", color=discord.Color.red()
                     )
                 )
-        if member.top_role.position >= ctx.author.top_role.position:
-            return await ctx.send(
+        if member.top_role.position >= interaction.author.top_role.position:
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="You can't warn this user",
                     description="The user has a higher role than you",
@@ -764,7 +853,7 @@ class Moderation(commands.Cog):
             embed=discord.Embed(
                 title="You have been warned",
                 description="You have been warned by {} for the reason: {}\nTime: {}".format(
-                    ctx.author.name, reason, now.strftime("%Y/%m/%d %H:%M:%S")
+                    interaction.author.name, reason, now.strftime("%Y/%m/%d %H:%M:%S")
                 ),
                 color=discord.Color.red(),
             )
@@ -773,38 +862,38 @@ class Moderation(commands.Cog):
             db = await util.json.load(fp)
 
         try:
-            db[str(ctx.guild.id)]["logs"].append(
+            db[str(interaction.guild.id)]["logs"].append(
                 {
                     "id": util.stuffs.random_id(),
                     "type": "warn",
                     "user": member.id,
-                    "moderator": ctx.author.id,
+                    "moderator": interaction.author.id,
                     "reason": reason,
                     "when": datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
                 }
             )
         except KeyError:
-            db[str(ctx.guild.id)] = {
+            db[str(interaction.guild.id)] = {
                 "logs": [
                     {
                         "id": util.stuffs.random_id(),
                         "type": "warn",
                         "user": member.id,
-                        "moderator": ctx.author.id,
+                        "moderator": interaction.author.id,
                         "reason": reason,
                         "when": datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
                     }
                 ]
             }
-        await self.log(ctx, db, "warn")
+        await self.log(interaction, db, "warn")
         async with aiofiles.open("db/logging.json", "w") as fp:
             await util.json.dump(fp, db)
 
-    @commands.command(name="delwarn")
+    @app_commands.command(name="delwarn")
     @commands.has_permissions(manage_roles=True)
     async def delwarn(
         self,
-        ctx: commands.Context,
+        interaction: discord.Interaction,
         id: str,
         reason: str = "No reason provided",
         disable_asking: str = "false",
@@ -819,7 +908,7 @@ class Moderation(commands.Cog):
         """
         if not disable_asking == "false":
             view = utils.views.Confirm()
-            await ctx.send(
+            await interaction.response.send_message(
                 embed=discord.Embed(
                     title="Are you sure you want to delete this warning?",
                     color=discord.Color.red(),
@@ -827,13 +916,13 @@ class Moderation(commands.Cog):
                 view=view,
             )
             if view.value is None:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You're too slow!", color=discord.Color.red()
                     )
                 )
             if not view.value:
-                return await ctx.send(
+                return await interaction.response.send_message(
                     embed=discord.Embed(
                         title="You cancelled the deletion", color=discord.Color.red()
                     )
@@ -841,14 +930,14 @@ class Moderation(commands.Cog):
         async with aiofiles.open("db/logging.json") as fp:
             db = await util.json.load(fp)
         try:
-            for i in db[str(ctx.guild.id)]["logs"]:
+            for i in db[str(interaction.guild.id)]["logs"]:
                 if i["id"] == id:
-                    db[str(ctx.guild.id)]["logs"].remove(i)
-                    await ctx.send(
+                    db[str(interaction.guild.id)]["logs"].remove(i)
+                    await interaction.response.send_message(
                         embed=discord.Embed(
                             title="The warning has been deleted",
                             description="The warning has been deleted\nActioner: {}".format(
-                                ctx.author.name
+                                interaction.author.name
                             ),
                             color=discord.Color.green(),
                         )
@@ -857,14 +946,14 @@ class Moderation(commands.Cog):
                         await util.json.dump(fp, db)
                     return
         except KeyError:
-            return await ctx.send(
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="The warning doesn't exist",
                     description="The warning doesn't exist",
                     color=discord.Color.red(),
                 )
             )
-        await ctx.send(
+        await interaction.response.send_message(
             embed=discord.Embed(
                 title="The warning doesn't exist",
                 description="The warning doesn't exist",
@@ -872,9 +961,11 @@ class Moderation(commands.Cog):
             )
         )
 
-    @commands.command(name="warns", aliases=["warnings"])
+    @app_commands.command(name="warns", aliases=["warnings"])
     @commands.has_permissions(manage_roles=True)
-    async def warns(self, ctx: commands.Context, member: discord.Member = None) -> None:
+    async def warns(
+        self, interaction: discord.Interaction, member: discord.Member
+    ) -> None:
         """
         Get the warnings of a member
 
@@ -882,13 +973,15 @@ class Moderation(commands.Cog):
         member: The member to get the warnings of
         """
         if member is None:
-            return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
+            return await interaction.response.send_message(
+                embed=utils.embedgen.error_required_arg("member")
+            )
         async with aiofiles.open("db/logging.json") as fp:
             db = await util.json.load(fp)
         try:
-            warns = db[str(ctx.guild.id)]["logs"]
+            warns = db[str(interaction.guild.id)]["logs"]
         except KeyError:
-            return await ctx.send(
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="There are no warnings",
                     description="There are no warnings",
@@ -898,7 +991,7 @@ class Moderation(commands.Cog):
         try:
             warns = [i for i in warns if i["user"] == member.id]
         except KeyError:
-            return await ctx.send(
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="There are no warnings",
                     description="There are no warnings",
@@ -906,7 +999,7 @@ class Moderation(commands.Cog):
                 )
             )
         if not warns:
-            return await ctx.send(
+            return await interaction.response.send_message(
                 embed=discord.Embed(
                     title="There are no warnings",
                     description="There are no warnings",
@@ -922,22 +1015,24 @@ class Moderation(commands.Cog):
             embed.add_field(name="Reason", value=i["reason"], inline=False)
             embed.add_field(
                 name="Moderator",
-                value=ctx.guild.get_member(i["moderator"]).name,
+                value=interaction.guild.get_member(i["moderator"]).name,
                 inline=False,
             )
             embed.add_field(name="When", value=i["when"], inline=False)
-        await ctx.send(embed=embed)
+        await interaction.response.send_message(embed=embed)
 
-    @commands.command(name="purge", aliases=["bulkdel", "del", "clear"])
+    @app_commands.command(name="purge", aliases=["bulkdel", "del", "clear"])
     @commands.has_permissions(manage_messages=True)
-    async def purge(self, ctx: commands.Context, amount: int = None):
+    async def purge(self, interaction: discord.Interaction, amount: int = 50):
         """
         Purge messages
         """
         if amount is None:
-            return await ctx.send(embed=utils.embedgen.error_required_arg("amount"))
-        await ctx.channel.purge(limit=amount + 1)
-        await ctx.send(
+            return await interaction.response.send_message(
+                embed=utils.embedgen.error_required_arg("amount")
+            )
+        await interaction.channel.purge(limit=amount + 1)
+        await interaction.response.send_message(
             embed=discord.Embed(
                 title="Purged {} messages".format(amount), color=discord.Color.red()
             )
@@ -946,6 +1041,6 @@ class Moderation(commands.Cog):
 
 async def setup(bot: commands.Bot) -> None:
     """
-    Function to setup the cog
+    Setup the logging cog
     """
-    await bot.add_cog(Moderation(bot))
+    await bot.add_cog(Slashes(bot))

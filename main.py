@@ -13,9 +13,9 @@ load_dotenv()
 import os
 
 import discord
+import jishaku
 from discord import app_commands
 from discord.ext import commands
-import jishaku
 
 bot = commands.Bot("n!", intents=discord.Intents.all())
 tree = app_commands.CommandTree(bot)
