@@ -11,11 +11,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 import os
+from datetime import datetime
 
 import discord
 import jishaku
 from discord import app_commands
-from datetime import datetime
 from discord.ext import commands
 
 bot = commands.Bot("n!", intents=discord.Intents.all())
