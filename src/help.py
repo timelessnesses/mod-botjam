@@ -1,12 +1,13 @@
 import discord
 from discord.ext import commands
+from discord import app_commands
 
 
 class Help(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @commands.command(name="help")
+    @commands.hybrid_command(name="help")
     async def help(self, ctx, command: str = None):
         """Shows help about a command or the bot"""
         print(command)

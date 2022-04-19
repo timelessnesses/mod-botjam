@@ -2,14 +2,20 @@ import discord
 import psutil
 from discord import app_commands
 from discord.ext import commands
+import platform
+
+from datetime import datetime
 
 
 class Stuff(commands.Cog, name="unrelated"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="credits", aliases=["c"])
-    async def credits(self, ctx: commands.Context):
+    @commands.hybrid_command(name="credits", aliases=["c"])
+    async def credits(self, ctx):
+        """
+        Shows the credits.
+        """
         embed = discord.Embed(
             title="Credits", description="Thanks to everyone who using this bot!"
         )
@@ -20,8 +26,11 @@ class Stuff(commands.Cog, name="unrelated"):
 
         await ctx.send(embed=embed)
 
-    @commands.command(name="ping", aliases=["p"])
-    async def ping(self, ctx: commands.Context):
+    @commands.hybrid_command(name="ping", aliases=["p"])
+    async def ping(self, ctx):
+        """
+        Pong!
+        """
         embed = discord.Embed(
             title="Pong!",
             description=f"{round(self.bot.latency * 1000)}ms from API websocket",
@@ -29,15 +38,21 @@ class Stuff(commands.Cog, name="unrelated"):
         )
         await ctx.send(embed=embed)
 
-    @commands.command(name="status")
-    async def status(self, ctx: commands.Context):
+    @commands.hybrid_command(name="status")
+    async def status(self, ctx):
+        """
+        Status of bot like uptime, memory usage, etc.
+        """
         embed = discord.Embed(
             title="Status", description="Bot status", color=discord.Color.green()
         )
         embed.add_field(name="CPU", value=f"{psutil.cpu_percent()}%")
         embed.add_field(name="RAM", value=f"{psutil.virtual_memory().percent}%")
         embed.add_field(name="Disk", value=f"{psutil.disk_usage('/').percent}%")
-        embed.add_field(name="Uptime", value=f"{round(self.bot.uptime / 60)} minutes")
+        embed.add_field(
+            name="Uptime",
+            value=f"{round((datetime.utcnow() - self.bot.start_time).total_seconds() / 60)} minutes",
+        )
         embed.add_field(name="Python", value=f"{platform.python_version()}")
         embed.add_field(name="Discord.py", value=f"{discord.__version__}")
         embed.add_field(name="Bot version", value=f"{self.bot.version_}")

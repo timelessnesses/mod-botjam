@@ -54,14 +54,14 @@ class CogsManagement(commands.Cog):
         """
         Reloads all cogs.
         """
-        for cog in os.listdir("./Cogs"):
+        for cog in os.listdir("./src"):
             if cog == "cogs_manage.py":
                 continue
             if not cog.endswith(".py"):
                 continue
             try:
-                await self.bot.unload_extension("Cogs." + cog[:-3])
-                await self.bot.load_extension("Cogs." + cog[:-3])
+                await self.bot.unload_extension("src." + cog[:-3])
+                await self.bot.load_extension("src." + cog[:-3])
             except Exception as e:
                 await ctx.send(f"**`ERROR:`** {type(e).__name__} - {e}")
             else:

@@ -833,11 +833,12 @@ class Moderation(commands.Cog):
         await ctx.send(
             embed=discord.Embed(
                 title="{} has been warned".format(member.name),
-                description="{} have been warned\nActioner: {}\nReason: {}\nTime: {}".format(
+                description="{} have been warned\nActioner: {}\nReason: {}\nTime: {}\nLog ID: {}".format(
                     member.name,
                     ctx.author.name,
                     reason,
                     now.strftime("%Y/%m/%d %H:%M:%S"),
+                    d,
                 ),
                 color=discord.Color.green(),
             )
