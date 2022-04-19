@@ -11,14 +11,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 import os
+import subprocess
 from datetime import datetime
 
 import discord
 import jishaku
 from discord import app_commands
-from datetime import datetime
 from discord.ext import commands, tasks
-import subprocess
 
 bot = commands.Bot(
     "n!", intents=discord.Intents.all(), owner_id=int(os.getenv("OWNER_ID"))
@@ -52,7 +51,7 @@ def get_git_revision_short_hash() -> str:
 
 
 bot.start_time = datetime.utcnow()
-bot.version_ = os.getenv("DEPLOY_TYPE") + " " + get_git_revision_short_hash()
+bot.version_ = os.getenv("DEPLOY_TYPE") + " commit " + get_git_revision_short_hash()
 
 
 async def main():

@@ -12,6 +12,7 @@ import utils.embedgen
 import utils.json
 import utils.stuffs
 import utils.views
+import utils.logger
 
 
 class Moderation(commands.Cog):
@@ -23,7 +24,7 @@ class Moderation(commands.Cog):
     async def hackban(
         self,
         ctx: discord.Interaction,
-        user: int,
+        user: int = None,
         reason: str = "No reason provided",
         disable_asking: str = "false",
     ) -> None:
@@ -40,6 +41,13 @@ class Moderation(commands.Cog):
                 embed=discord.Embed(
                     title="Error",
                     description="If you want to type a phrases consider wrap them in \" or ' due to command parsing problems!",
+                )
+            )
+        if user is None:
+            return await ctx.send(
+                embed=discord.Embed(
+                    title="Error",
+                    description="You need to specify a user (user ID) to ban!",
                 )
             )
         try:
@@ -94,8 +102,8 @@ class Moderation(commands.Cog):
         d = utils.stuffs.random_id()
         await ctx.send(
             embed=discord.Embed(
-                title="{} has been kicked".format(user.name),
-                description="{} have been kicked from {}\nActioner: {}\nReason: {}\nWhen: {}\nLog ID: {}".format(
+                title="{} has been hackbanned".format(user.name),
+                description="{} have been hackbanned from {}\nActioner: {}\nReason: {}\nWhen: {}\nLog ID: {}".format(
                     user.name,
                     ctx.guild.name,
                     ctx.author.name,
@@ -106,35 +114,17 @@ class Moderation(commands.Cog):
                 color=discord.Color.green(),
             )
         )
-        async with aiofiles.open("db/logging.json") as fp:
-            db = await utils.json.load(fp)
-        try:
-            db[str(ctx.guild.id)]["logs"].append(
-                {
-                    "id": d,
-                    "type": "kick",
-                    "user": member.id,
-                    "moderator": ctx.author.id,
-                    "reason": reason,
-                    "when": now.strftime("%Y/%m/%d %H:%M:%S"),
-                }
-            )
-        except KeyError:
-            db[str(ctx.guild.id)] = {
-                "logs": [
-                    {
-                        "id": d,
-                        "type": "kick",
-                        "user": member.id,
-                        "moderator": ctx.author.id,
-                        "reason": reason,
-                        "when": now.strftime("%Y/%m/%d %H:%M:%S"),
-                    }
-                ]
-            }
-        await self.log(ctx, db, "hackbanned")
-        async with aiofiles.open("db/logging.json", "w") as fp:
-            await utils.json.dump(fp, db)
+
+        await self.log(ctx, db, "hackban", d)
+        await utils.logger.log(
+            d,
+            ctx.guild.id,
+            utils.logger.Types.hackban,
+            ctx.author.id,
+            user.id,
+            now.strftime("%Y/%m/%d %H:%M:%S"),
+            reason,
+        )
 
     @commands.command(name="kick")
     @commands.has_permissions(kick_members=True)
@@ -234,37 +224,19 @@ class Moderation(commands.Cog):
                 color=discord.Color.green(),
             )
         )
-        async with aiofiles.open("db/logging.json") as fp:
-            db = await utils.json.load(fp)
-        try:
-            db[str(ctx.guild.id)]["logs"].append(
-                {
-                    "id": d,
-                    "type": "kick",
-                    "user": member.id,
-                    "moderator": ctx.author.id,
-                    "reason": reason,
-                    "when": now.strftime("%Y/%m/%d %H:%M:%S"),
-                }
-            )
-        except KeyError:
-            db[str(ctx.guild.id)] = {
-                "logs": [
-                    {
-                        "id": d,
-                        "type": "kick",
-                        "user": member.id,
-                        "moderator": ctx.author.id,
-                        "reason": reason,
-                        "when": now.strftime("%Y/%m/%d %H:%M:%S"),
-                    }
-                ]
-            }
-        await self.log(ctx, db, "hackbanned")
-        async with aiofiles.open("db/logging.json", "w") as fp:
-            await utils.json.dump(fp, db)
 
-    async def log(self, ctx: commands.Context, db: dict, action: str) -> None:
+        await self.log(ctx, db, "kick", d)
+        await utils.logger.log(
+            d,
+            ctx.guild.id,
+            utils.logger.Types.kick,
+            ctx.author.id,
+            member.id,
+            now.strftime("%Y/%m/%d %H:%M:%S"),
+            reason,
+        )
+
+    async def log(self, ctx: commands.Context, db: dict, action: str, id: str) -> None:
         try:
             channel = ctx.guild.get_channel(
                 int(db[str(ctx.guild.id)]["config"]["logging"])
@@ -384,35 +356,16 @@ class Moderation(commands.Cog):
                 color=discord.Color.green(),
             )
         )
-        async with aiofiles.open("db/logging.json") as fp:
-            db = await utils.json.load(fp)
-        try:
-            db[str(ctx.guild.id)]["logs"].append(
-                {
-                    "id": d,
-                    "type": "ban",
-                    "user": member.id,
-                    "moderator": ctx.author.id,
-                    "reason": reason,
-                    "when": now.strftime("%Y/%m/%d %H:%M:%S"),
-                }
-            )
-        except KeyError:
-            db[str(ctx.guild.id)] = {
-                "logs": [
-                    {
-                        "id": d,
-                        "type": "ban",
-                        "user": member.id,
-                        "moderator": ctx.author.id,
-                        "reason": reason,
-                        "when": now.strftime("%Y/%m/%d %H:%M:%S"),
-                    }
-                ]
-            }
-        await self.log(ctx, db, "ban")
-        async with aiofiles.open("db/logging.json", "w") as fp:
-            await utils.json.dump(fp, db)
+        await self.log(ctx, db, "ban", d)
+        await utils.logger.log(
+            d,
+            ctx.guild.id,
+            utils.logger.Types.ban,
+            ctx.author.id,
+            member.id,
+            now.strftime("%Y/%m/%d %H:%M:%S"),
+            reason,
+        )
 
     @commands.command(name="unban")
     @commands.has_permissions(ban_members=True)
@@ -477,35 +430,17 @@ class Moderation(commands.Cog):
                 color=discord.Color.green(),
             )
         )
-        async with aiofiles.open("db/logging.json") as fp:
-            db = await utils.json.load(fp)
-        try:
-            db[str(ctx.guild.id)]["logs"].append(
-                {
-                    "id": d,
-                    "type": "unban",
-                    "user": member.id,
-                    "moderator": ctx.author.id,
-                    "reason": reason,
-                    "when": now.strftime("%Y/%m/%d %H:%M:%S"),
-                }
-            )
-        except KeyError:
-            db[str(ctx.guild.id)] = {
-                "logs": [
-                    {
-                        "id": d,
-                        "type": "unban",
-                        "user": member.id,
-                        "moderator": ctx.author.id,
-                        "reason": reason,
-                        "when": now.strftime("%Y/%m/%d %H:%M:%S"),
-                    }
-                ]
-            }
-        await self.log(ctx, db, "unban")
-        async with aiofiles.open("db/logging.json", "w") as fp:
-            await utils.json.dump(fp, db)
+
+        await self.log(ctx, db, "unban", d)
+        await utils.logger.log(
+            d,
+            ctx.guild.id,
+            utils.logger.Types.unban,
+            ctx.author.id,
+            member.id,
+            now.strftime("%Y/%m/%d %H:%M:%S"),
+            reason,
+        )
 
     def _parse_time(self, time: str) -> datetime.timedelta:
         """
@@ -643,38 +578,18 @@ class Moderation(commands.Cog):
                 color=discord.Color.green(),
             )
         )
-        async with aiofiles.open("db/logging.json") as fp:
-            db = await utils.json.load(fp)
 
-        try:
-            db[str(ctx.guild.id)]["logs"].append(
-                {
-                    "id": d,
-                    "type": "mute",
-                    "user": member.id,
-                    "moderator": ctx.author.id,
-                    "reason": reason,
-                    "when": now.strftime("%Y/%m/%d %H:%M:%S"),
-                    "duration": duration,
-                }
-            )
-        except KeyError:
-            db[str(ctx.guild.id)] = {
-                "logs": [
-                    {
-                        "id": d,
-                        "type": "mute",
-                        "user": member.id,
-                        "moderator": ctx.author.id,
-                        "reason": reason,
-                        "when": now.strftime("%Y/%m/%d %H:%M:%S"),
-                        "duration": duration,
-                    }
-                ]
-            }
-        await self.log(ctx, db, "mute")
-        async with aiofiles.open("db/logging.json", "w") as fp:
-            await utils.json.dump(fp, db)
+        await self.log(ctx, db, "mute", d)
+        await utils.logger.log(
+            d,
+            ctx.guild.id,
+            utils.logger.Types.mute,
+            ctx.author.id,
+            member.id,
+            now.strftime("%Y/%m/%d %H:%M:%S"),
+            reason,
+            duration,
+        )
 
     @commands.command(name="unmute", aliases=["untimeout", "untm", "um"])
     @commands.has_permissions(manage_roles=True)
@@ -734,34 +649,16 @@ class Moderation(commands.Cog):
                 color=discord.Color.green(),
             )
         )
-        async with aiofiles.open("db/logging.json") as fp:
-            db = await utils.json.load(fp)
 
-        try:
-            db[str(ctx.guild.id)]["logs"].append(
-                {
-                    "id": d,
-                    "type": "unmute",
-                    "user": member.id,
-                    "moderator": ctx.author.id,
-                    "when": datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
-                }
-            )
-        except KeyError:
-            db[str(ctx.guild.id)] = {
-                "logs": [
-                    {
-                        "id": d,
-                        "type": "unmute",
-                        "user": member.id,
-                        "moderator": ctx.author.id,
-                        "when": datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
-                    }
-                ]
-            }
-        await self.log(ctx, db, "unmute")
-        async with aiofiles.open("db/logging.json", "w") as fp:
-            await utils.json.dump(fp, db)
+        await self.log(ctx, db, "unmute", d)
+        await utils.logger.log(
+            d,
+            ctx.guild.id,
+            utils.logger.Types.unmute,
+            ctx.author.id,
+            member.id,
+            datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
+        )
 
     @commands.command(name="warn")
     @commands.has_permissions(manage_roles=True)
@@ -843,36 +740,17 @@ class Moderation(commands.Cog):
                 color=discord.Color.green(),
             )
         )
-        async with aiofiles.open("db/logging.json") as fp:
-            db = await utils.json.load(fp)
 
-        try:
-            db[str(ctx.guild.id)]["logs"].append(
-                {
-                    "id": d,
-                    "type": "warn",
-                    "user": member.id,
-                    "moderator": ctx.author.id,
-                    "reason": reason,
-                    "when": datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
-                }
-            )
-        except KeyError:
-            db[str(ctx.guild.id)] = {
-                "logs": [
-                    {
-                        "id": d,
-                        "type": "warn",
-                        "user": member.id,
-                        "moderator": ctx.author.id,
-                        "reason": reason,
-                        "when": datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
-                    }
-                ]
-            }
-        await self.log(ctx, db, "warn")
-        async with aiofiles.open("db/logging.json", "w") as fp:
-            await utils.json.dump(fp, db)
+        await self.log(ctx, db, "warn", d)
+        await utils.logger.log(
+            d,
+            ctx.guild.id,
+            utils.logger.Types.warn,
+            ctx.author.id,
+            member.id,
+            now.strftime("%Y/%m/%d %H:%M:%S"),
+            reason,
+        )
 
     @commands.command(name="delwarn")
     @commands.has_permissions(manage_roles=True)
@@ -922,9 +800,11 @@ class Moderation(commands.Cog):
                 )
         async with aiofiles.open("db/logging.json") as fp:
             db = await utils.json.load(fp)
+        g = None
         try:
             for i in db[str(ctx.guild.id)]["logs"]:
                 if i["id"] == id:
+                    g = i
                     if i["type"] != "warn":
                         return await ctx.send(
                             embed=discord.Embed(
@@ -943,9 +823,6 @@ class Moderation(commands.Cog):
                             color=discord.Color.green(),
                         )
                     )
-                    async with aiofiles.open("db/logging.json", "w") as fp:
-                        await utils.json.dump(fp, db)
-                    return
         except KeyError:
             return await ctx.send(
                 embed=discord.Embed(
@@ -954,12 +831,16 @@ class Moderation(commands.Cog):
                     color=discord.Color.red(),
                 )
             )
-        await ctx.send(
-            embed=discord.Embed(
-                title="The warning doesn't exist",
-                description="The warning doesn't exist",
-                color=discord.Color.red(),
-            )
+        await self.log(ctx, db, "delwarn", id)
+        await utils.logger.log(
+            id,
+            ctx.guild.id,
+            utils.logger.Types.delwarn,
+            ctx.author.id,
+            g["user"],
+            datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
+            None,
+            g["duration"],
         )
 
     @commands.command(name="warns", aliases=["warnings"])
@@ -1032,6 +913,34 @@ class Moderation(commands.Cog):
                 title="Purged {} messages".format(amount), color=discord.Color.red()
             )
         )
+        async with aiofiles.open("db/logging.json") as fp:
+            db = await utils.json.load(fp)
+        try:
+            db[str(ctx.guild.id)]["logs"].append(
+                {
+                    "id": utils.stuffs.random_id(),
+                    "type": "purge",
+                    "user": ctx.author.id,
+                    "amount": amount,
+                    "when": datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
+                }
+            )
+        except KeyError:
+            db[str(ctx.guild.id)] = {
+                "logs": [
+                    {
+                        "id": utils.stuffs.random_id(),
+                        "type": "purge",
+                        "user": ctx.author.id,
+                        "amount": amount,
+                        "when": datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
+                    }
+                ]
+            }
+        async with aiofiles.open("db/logging.json", "w") as fp:
+            await utils.json.dump(fp, db)
+
+        await self.log(ctx, db, "purge")
 
     @commands.command(name="getlogs", aliases=["log"])
     @commands.has_permissions(manage_messages=True)
