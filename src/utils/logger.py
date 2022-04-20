@@ -19,7 +19,6 @@ class Types:
     purge = "purge"
 
 
-@plum.dispatch
 async def log(
     id: str,
     guild: int,
@@ -61,8 +60,7 @@ async def log(
         await json.dump(data, fp)
 
 
-@plum.dispatch
-async def log(
+async def log_mute(
     id: str,
     guild: int,
     type: Types,

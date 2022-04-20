@@ -4,8 +4,8 @@ import discord
 from discord.ext import commands
 
 sys.path.append("src")
-import datetime
-
+from datetime import datetime
+import datetime as n
 import aiofiles
 
 import utils.embedgen
@@ -108,21 +108,21 @@ class Moderation(commands.Cog):
                     ctx.guild.name,
                     ctx.author.name,
                     reason,
-                    now.strftime("%Y/%m/%d %H:%M:%S"),
+                    datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
                     d,
                 ),
                 color=discord.Color.green(),
             )
         )
 
-        await self.log(ctx, db, "hackban", d)
+        await self.log(ctx, "hackban", d, reason)
         await utils.logger.log(
             d,
             ctx.guild.id,
             utils.logger.Types.hackban,
             ctx.author.id,
             user.id,
-            now.strftime("%Y/%m/%d %H:%M:%S"),
+            datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
             reason,
         )
 
@@ -161,7 +161,7 @@ class Moderation(commands.Cog):
         if member == self.bot.user:
             return await ctx.send(
                 embed=discord.Embed(
-                    title="Why you want to kick me. :( I am sad now.",
+                    title="Why you want to kick me. :( I am sad datetime.utcnow().",
                     color=discord.Color.red(),
                 )
             )
@@ -195,7 +195,7 @@ class Moderation(commands.Cog):
                     )
                 )
 
-        now = datetime.datetime.now()
+        d = datetime.utcnow()
         await member.send(
             embed=discord.Embed(
                 title="You have been kicked from {}".format(ctx.guild.name),
@@ -203,7 +203,7 @@ class Moderation(commands.Cog):
                     ctx.guild.name,
                     ctx.author.name,
                     reason,
-                    now.strftime("%Y/%m/%d %H:%M:%S"),
+                    d.strftime("%Y/%m/%d %H:%M:%S"),
                 ),
                 color=discord.Color.red(),
             )
@@ -218,25 +218,27 @@ class Moderation(commands.Cog):
                     ctx.guild.name,
                     ctx.author.name,
                     reason,
-                    now.strftime("%Y/%m/%d %H:%M:%S"),
+                    datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
                     d,
                 ),
                 color=discord.Color.green(),
             )
         )
 
-        await self.log(ctx, db, "kick", d)
+        await self.log(ctx, "kick", d, reason)
         await utils.logger.log(
             d,
             ctx.guild.id,
             utils.logger.Types.kick,
             ctx.author.id,
             member.id,
-            now.strftime("%Y/%m/%d %H:%M:%S"),
+            datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
             reason,
         )
 
-    async def log(self, ctx: commands.Context, db: dict, action: str, id: str) -> None:
+    async def log(self, ctx: commands.Context, action: str, id: str, reason) -> None:
+        async with aiofiles.open("db/logging.json") as fp:
+            db = await utils.json.load(fp)
         try:
             channel = ctx.guild.get_channel(
                 int(db[str(ctx.guild.id)]["config"]["logging"])
@@ -253,7 +255,7 @@ class Moderation(commands.Cog):
                 ctx.guild.name,
                 ctx.author.name,
                 reason,
-                now.strftime("%Y/%m/%d %H:%M:%S"),
+                datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
             ),
             color=discord.Color.red(),
         )
@@ -294,7 +296,7 @@ class Moderation(commands.Cog):
         if member == self.bot.user:
             return await ctx.send(
                 embed=discord.Embed(
-                    title="Why you want to ban me. :( I am sad now.",
+                    title="Why you want to ban me. :( I am sad datetime.utcnow().",
                     color=discord.Color.red(),
                 )
             )
@@ -327,7 +329,7 @@ class Moderation(commands.Cog):
                         title="You cancelled the ban", color=discord.Color.red()
                     )
                 )
-        now = datetime.datetime.now()
+        d = datetime.utcnow()
         await member.send(
             embed=discord.Embed(
                 title="You have been banned from {}".format(ctx.guild.name),
@@ -335,7 +337,7 @@ class Moderation(commands.Cog):
                     ctx.guild.name,
                     ctx.author.name,
                     reason,
-                    now.strftime("%Y/%m/%d %H:%M:%S"),
+                    d.strftime("%Y/%m/%d %H:%M:%S"),
                 ),
                 color=discord.Color.red(),
             )
@@ -350,20 +352,20 @@ class Moderation(commands.Cog):
                     ctx.guild.name,
                     ctx.author.name,
                     reason,
-                    now.strftime("%Y/%m/%d %H:%M:%S"),
+                    datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
                     d,
                 ),
                 color=discord.Color.green(),
             )
         )
-        await self.log(ctx, db, "ban", d)
+        await self.log(ctx, "ban", d, reason)
         await utils.logger.log(
             d,
             ctx.guild.id,
             utils.logger.Types.ban,
             ctx.author.id,
             member.id,
-            now.strftime("%Y/%m/%d %H:%M:%S"),
+            datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
             reason,
         )
 
@@ -415,7 +417,7 @@ class Moderation(commands.Cog):
                         title="You cancelled the unban", color=discord.Color.red()
                     )
                 )
-        now = datetime.datetime.now()
+        d = datetime.utcnow()
         await ctx.guild.unban(member, reason=reason)
         d = utils.stuffs.random_id()
         await ctx.send(
@@ -425,24 +427,24 @@ class Moderation(commands.Cog):
                     ctx.guild.name,
                     ctx.author.name,
                     reason,
-                    now.strftime("%Y/%m/%d %H:%M:%S"),
+                    datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
                 ),
                 color=discord.Color.green(),
             )
         )
 
-        await self.log(ctx, db, "unban", d)
+        await self.log(ctx, "unban", d, reason)
         await utils.logger.log(
             d,
             ctx.guild.id,
             utils.logger.Types.unban,
             ctx.author.id,
             member.id,
-            now.strftime("%Y/%m/%d %H:%M:%S"),
+            datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
             reason,
         )
 
-    def _parse_time(self, time: str) -> datetime.timedelta:
+    def _parse_time(self, time: str) -> n.timedelta:
         """
         Parsing the time
 
@@ -450,19 +452,19 @@ class Moderation(commands.Cog):
         time: The time to parse
         """
         if time.endswith("s"):
-            return datetime.timedelta(seconds=int(time[:-1]))
+            return n.timedelta(seconds=int(time[:-1]))
         elif time.endswith("m"):
-            return datetime.timedelta(minutes=int(time[:-1]))
+            return n.timedelta(minutes=int(time[:-1]))
         elif time.endswith("h"):
-            return datetime.timedelta(hours=int(time[:-1]))
+            return n.timedelta(hours=int(time[:-1]))
         elif time.endswith("d"):
-            return datetime.timedelta(days=int(time[:-1]))
+            return n.timedelta(days=int(time[:-1]))
         elif time.endswith("w"):
-            return datetime.timedelta(weeks=int(time[:-1]))
+            return n.timedelta(weeks=int(time[:-1]))
         elif time.endswith("y"):
-            return datetime.timedelta(days=int(time[:-1]) * 365)
+            return n.timedelta(days=int(time[:-1]) * 365)
         else:
-            return datetime.timedelta(seconds=int(time))
+            return n.timedelta(seconds=int(time))
 
     @commands.command(name="mute", aliases=["timeout", "tm", "m"])
     @commands.has_permissions(manage_roles=True)
@@ -514,7 +516,7 @@ class Moderation(commands.Cog):
                         title="You cancelled the mute", color=discord.Color.red()
                     )
                 )
-        if self._parse_time(duration) == datetime.timedelta(seconds=0):
+        if self._parse_time(duration) == n.timedelta(seconds=0):
             view = utils.views.Confirm()
             await ctx.send(
                 embed=discord.Embed(
@@ -553,7 +555,7 @@ class Moderation(commands.Cog):
                     ),
                 )
             )
-        now = datetime.datetime.now()
+        d = datetime.utcnow()
         if member.top_role.position >= ctx.author.top_role.position:
             return await ctx.send(
                 embed=discord.Embed(
@@ -573,20 +575,20 @@ class Moderation(commands.Cog):
                     ctx.author.name,
                     reason,
                     duration,
-                    now.strftime("%Y/%m/%d %H:%M:%S"),
+                    datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
                 ),
                 color=discord.Color.green(),
             )
         )
 
-        await self.log(ctx, db, "mute", d)
-        await utils.logger.log(
+        await self.log(ctx, "mute", d, reason)
+        await utils.logger.log_mute(
             d,
             ctx.guild.id,
             utils.logger.Types.mute,
             ctx.author.id,
             member.id,
-            now.strftime("%Y/%m/%d %H:%M:%S"),
+            datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
             reason,
             duration,
         )
@@ -638,7 +640,7 @@ class Moderation(commands.Cog):
                     color=discord.Color.red(),
                 )
             )
-        await member.timeout(datetime.timedelta(seconds=0))
+        await member.timeout(n.timedelta(seconds=0))
         d = utils.stuffs.random_id()
         await ctx.send(
             embed=discord.Embed(
@@ -650,14 +652,16 @@ class Moderation(commands.Cog):
             )
         )
 
-        await self.log(ctx, db, "unmute", d)
-        await utils.logger.log(
+        await self.log(ctx, "unmute", d, "")
+        await utils.logger.log_mute(
             d,
             ctx.guild.id,
             utils.logger.Types.unmute,
             ctx.author.id,
             member.id,
-            datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
+            datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
+            "",
+            "",
         )
 
     @commands.command(name="warn")
@@ -716,12 +720,14 @@ class Moderation(commands.Cog):
                     color=discord.Color.red(),
                 )
             )
-        now = datetime.datetime.now()
+        d = datetime.utcnow()
         await member.send(
             embed=discord.Embed(
                 title="You have been warned",
                 description="You have been warned by {} for the reason: {}\nTime: {}".format(
-                    ctx.author.name, reason, now.strftime("%Y/%m/%d %H:%M:%S")
+                    ctx.author.name,
+                    reason,
+                    datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
                 ),
                 color=discord.Color.red(),
             )
@@ -734,21 +740,21 @@ class Moderation(commands.Cog):
                     member.name,
                     ctx.author.name,
                     reason,
-                    now.strftime("%Y/%m/%d %H:%M:%S"),
+                    datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
                     d,
                 ),
                 color=discord.Color.green(),
             )
         )
 
-        await self.log(ctx, db, "warn", d)
+        await self.log(ctx, "warn", d, reason)
         await utils.logger.log(
             d,
             ctx.guild.id,
             utils.logger.Types.warn,
             ctx.author.id,
             member.id,
-            now.strftime("%Y/%m/%d %H:%M:%S"),
+            datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
             reason,
         )
 
@@ -831,13 +837,13 @@ class Moderation(commands.Cog):
                     color=discord.Color.red(),
                 )
             )
-        await self.log(ctx, db, "delwarn", id)
+        await self.log(ctx, "delwarn", id, reason)
         await utils.logger.log(
             id,
             ctx.guild.id,
             utils.logger.Types.delwarn,
             ctx.author.id,
-            g["user"],
+            0 + +g["user"],
             datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
             None,
             g["duration"],
@@ -915,32 +921,33 @@ class Moderation(commands.Cog):
         )
         async with aiofiles.open("db/logging.json") as fp:
             db = await utils.json.load(fp)
+        d = utils.stuffs.random_id()
         try:
             db[str(ctx.guild.id)]["logs"].append(
                 {
-                    "id": utils.stuffs.random_id(),
+                    "id": d,
                     "type": "purge",
                     "user": ctx.author.id,
                     "amount": amount,
-                    "when": datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
+                    "when": datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
                 }
             )
         except KeyError:
             db[str(ctx.guild.id)] = {
                 "logs": [
                     {
-                        "id": utils.stuffs.random_id(),
+                        "id": d,
                         "type": "purge",
                         "user": ctx.author.id,
                         "amount": amount,
-                        "when": datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
+                        "when": datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
                     }
                 ]
             }
         async with aiofiles.open("db/logging.json", "w") as fp:
             await utils.json.dump(fp, db)
 
-        await self.log(ctx, db, "purge")
+        await self.log(ctx, "purge", d, None)
 
     @commands.command(name="getlogs", aliases=["log"])
     @commands.has_permissions(manage_messages=True)
@@ -997,6 +1004,28 @@ class Moderation(commands.Cog):
             )
             embed.add_field(name="When", value=i["when"], inline=False)
         await ctx.send(embed=embed)
+
+    @commands.command(name="setup_logging")
+    @commands.has_permissions(administrator=True)
+    async def setup_logging(self, ctx: commands.Context, channel: discord.TextChannel):
+        """
+        Setup logging
+        """
+        await channel.send(
+            embed=discord.Embed(
+                title="This channel has been claimed for logging",
+                color=discord.Color.green(),
+            )
+        )
+        async with aiofiles.open("db/logging.json") as fp:
+            db = await utils.json.load(fp)
+        try:
+            db[str(ctx.guild.id)]["config"]["logging"] = channel.id
+        except KeyError:
+            db[str(ctx.guild.id)]["config"] = {}
+            db[str(ctx.guild.id)]["config"]["logging"] = channel.id
+        async with aiofiles.open("db/logging.json", "w") as fp:
+            await utils.json.dump(fp, db)
 
 
 async def setup(bot: commands.Bot) -> None:
