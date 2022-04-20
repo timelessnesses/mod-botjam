@@ -10,7 +10,6 @@ class Help(commands.Cog):
     @commands.hybrid_command(name="help")
     async def help(self, ctx, command: str = None):
         """Shows help about a command or the bot"""
-        print(command)
         if command is None:
             embed = discord.Embed(
                 title="Help", description="", color=discord.Color.blue()

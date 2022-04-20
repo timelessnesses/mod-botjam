@@ -21,12 +21,37 @@ class Errors(commands.Cog):
             matches = get_close_matches(ctx.invoked_with, cmds)
             if len(matches) > 0:
                 await ctx.send(
-                    f'Command "{ctx.invoked_with}" not found, maybe you meant "{matches[0]}"?'
+                    embed=discord.Embed(
+                        title="Command not found",
+                        description=f"Did you mean `{matches[0]}`?",
+                        color=discord.Color.red(),
+                    )
                 )
+
             else:
                 await ctx.send(
-                    f'Command "{ctx.invoked_with}" not found, use the help command to know what commands are available'
+                    embed=discord.Embed(
+                        title="Command not found",
+                        description=f"Did you mean `{ctx.invoked_with}`?",
+                        color=discord.Color.red(),
+                    )
                 )
+        elif isinstance(exception, commands.MissingRequiredArgument):
+            await ctx.send(
+                embed=discord.Embed(
+                    title="Missing argument",
+                    description=f"You are missing the `{exception.param.name}` argument.",
+                    color=discord.Color.red(),
+                )
+            )
+        elif isinstance(exception, commands.BadArgument):
+            await ctx.send(
+                embed=discord.Embed(
+                    title="Bad argument",
+                    description=f"The `{exception.param.name}` argument is invalid.",
+                    color=discord.Color.red(),
+                )
+            )
         else:
             print(
                 "Ignoring exception in command {}:".format(ctx.command), file=sys.stderr

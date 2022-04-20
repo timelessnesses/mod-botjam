@@ -7,6 +7,8 @@ sys.path.append("src")
 from datetime import datetime
 import datetime as n
 import aiofiles
+import asyncio
+import traceback
 
 import utils.embedgen
 import utils.json
@@ -249,13 +251,14 @@ class Moderation(commands.Cog):
             return
         embed = discord.Embed(
             title="Member {}".format(action),
-            description="{} has been {} from {}\nActioner: {}\nReason: {}\nWhen: {}".format(
+            description="{} has been {} from {}\nActioner: {}\nReason: {}\nWhen: {}\nLog ID: {}".format(
                 ctx.author.name,
                 action,
                 ctx.guild.name,
                 ctx.author.name,
                 reason,
                 datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
+                id,
             ),
             color=discord.Color.red(),
         )
@@ -542,6 +545,9 @@ class Moderation(commands.Cog):
                         color=discord.Color.red(),
                     )
                 )
+            unmute = True
+        else:
+            unmute = False
 
         if (
             self._parse_time(duration).total_seconds() >= 2419200
@@ -566,20 +572,36 @@ class Moderation(commands.Cog):
             )
         await member.timeout(self._parse_time(duration))
         d = utils.stuffs.random_id()
-        await ctx.send(
-            embed=discord.Embed(
-                title="{} has been muted".format(member.name),
-                description="{} have been muted in {}\nActioner: {}\nReason: {}\nDuration: {}\nWhen: {}".format(
-                    member.name,
-                    ctx.guild.name,
-                    ctx.author.name,
-                    reason,
-                    duration,
-                    datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
-                ),
-                color=discord.Color.green(),
+        if not unmute:
+            await ctx.send(
+                embed=discord.Embed(
+                    title="{} has been muted".format(member.name),
+                    description="{} have been muted in {}\nActioner: {}\nReason: {}\nDuration: {}\nWhen: {}".format(
+                        member.name,
+                        ctx.guild.name,
+                        ctx.author.name,
+                        reason,
+                        self._parse_time(duration),
+                        datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
+                    ),
+                    color=discord.Color.green(),
+                )
             )
-        )
+        else:
+            await ctx.send(
+                embed=discord.Embed(
+                    title="{} has been unmuted".format(member.name),
+                    description="{} have been unmuted in {}\nActioner: {}\nReason: {}\nDuration: {}\nWhen: {}".format(
+                        member.name,
+                        ctx.guild.name,
+                        ctx.author.name,
+                        reason,
+                        self._parse_time(duration),
+                        datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
+                    ),
+                    color=discord.Color.green(),
+                )
+            )
 
         await self.log(ctx, "mute", d, reason)
         await utils.logger.log_mute(
@@ -863,8 +885,9 @@ class Moderation(commands.Cog):
         async with aiofiles.open("db/logging.json") as fp:
             db = await utils.json.load(fp)
         try:
-            warns = db[str(ctx.guild.id)]["logs"]
+            warns = db[str(ctx.guild.id)]["logging"]
         except KeyError:
+            print("guild not found or logs isn't exist?")
             return await ctx.send(
                 embed=discord.Embed(
                     title="There are no warnings",
@@ -873,8 +896,11 @@ class Moderation(commands.Cog):
                 )
             )
         try:
-            warns = [i for i in warns if i["user"] == member.id and i["type"] == "warn"]
-        except KeyError:
+            warns = [
+                i for i in warns if i["target"] == member.id and i["type"] == "warn"
+            ]
+        except KeyError as e:
+            print("list comprehension error?")
             return await ctx.send(
                 embed=discord.Embed(
                     title="There are no warnings",
@@ -883,6 +909,7 @@ class Moderation(commands.Cog):
                 )
             )
         if not warns:
+            print("no warns")
             return await ctx.send(
                 embed=discord.Embed(
                     title="There are no warnings",
@@ -890,20 +917,28 @@ class Moderation(commands.Cog):
                     color=discord.Color.red(),
                 )
             )
+        embeds = []
+        for i in warns:
+            embed = discord.Embed(
+                title="Warn ID: {}".format(i["id"]), color=discord.Color.green()
+            )
+            embed.add_field(name="Reason", value=i["reason"], inline=False)
+            embed.add_field(
+                name="Actioner",
+                value=ctx.guild.get_member(i["actioner"]).name,
+                inline=False,
+            )
+            embed.add_field(name="When", value=i["when"], inline=False)
+            embeds.append(embed)
         embed = discord.Embed(
             title="Warnings of {}".format(member.name),
             description="Warnings of {}".format(member.name),
             color=discord.Color.red(),
         )
-        for i in warns:
-            embed.add_field(name="Reason", value=i["reason"], inline=False)
-            embed.add_field(
-                name="Moderator",
-                value=ctx.guild.get_member(i["moderator"]).name,
-                inline=False,
-            )
-            embed.add_field(name="When", value=i["when"], inline=False)
         await ctx.send(embed=embed)
+        for i in embeds:
+            await ctx.send(embed=i)
+            await asyncio.sleep(0.5)
 
     @commands.command(name="purge", aliases=["bulkdel", "del", "clear"])
     @commands.has_permissions(manage_messages=True)
@@ -999,7 +1034,7 @@ class Moderation(commands.Cog):
             embed.add_field(name="Reason", value=i["reason"], inline=False)
             embed.add_field(
                 name="Moderator",
-                value=ctx.guild.get_member(i["moderator"]).name,
+                value=ctx.guild.get_member(i["actioner"]).name,
                 inline=False,
             )
             embed.add_field(name="When", value=i["when"], inline=False)
@@ -1026,6 +1061,14 @@ class Moderation(commands.Cog):
             db[str(ctx.guild.id)]["config"]["logging"] = channel.id
         async with aiofiles.open("db/logging.json", "w") as fp:
             await utils.json.dump(fp, db)
+
+        await ctx.send(
+            embed=discord.Embed(
+                title="Logging has been setup",
+                description="Logging has been setup",
+                color=discord.Color.green(),
+            )
+        )
 
 
 async def setup(bot: commands.Bot) -> None:

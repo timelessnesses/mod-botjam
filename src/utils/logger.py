@@ -35,12 +35,11 @@ async def log(
         data[str(guild)]["logging"].append(
             {
                 "id": id,
-                "type": type.value,
-                "actioner": actioner.id,
-                "target": target.id,
+                "type": type,
+                "actioner": actioner,
+                "target": target,
                 "when": when,
                 "reason": reason,
-                "duration": duration,
             }
         )
     except KeyError:
@@ -48,24 +47,24 @@ async def log(
             "logging": [
                 {
                     "id": id,
-                    "type": type.value,
-                    "actioner": actioner.id,
-                    "target": target.id,
+                    "type": type,
+                    "actioner": actioner,
+                    "target": target,
                     "when": when,
                     "reason": reason,
                 }
             ]
         }
     async with aiofiles.open("db/logging.json", "w") as fp:
-        await json.dump(data, fp)
+        await json.dump(fp, data)
 
 
 async def log_mute(
     id: str,
     guild: int,
     type: Types,
-    actioner: typing.Union[discord.Member, discord.User],
-    target: typing.Union[discord.Member, discord.User],
+    actioner: typing.Union[discord.Member, discord.User, int],
+    target: typing.Union[discord.Member, discord.User, int],
     when: str,
     reason: str = None,
     duration: int = None,
@@ -77,9 +76,9 @@ async def log_mute(
         data[str(guild)]["logging"].append(
             {
                 "id": id,
-                "type": type.value,
-                "actioner": actioner.id,
-                "target": target.id,
+                "type": type,
+                "actioner": actioner,
+                "target": target,
                 "when": when,
                 "reason": reason,
                 "duration": duration,
@@ -90,13 +89,14 @@ async def log_mute(
             "logging": [
                 {
                     "id": id,
-                    "type": type.value,
-                    "actioner": actioner.id,
-                    "target": target.id,
+                    "type": type,
+                    "actioner": actioner,
+                    "target": target,
                     "when": when,
                     "reason": reason,
+                    "duration": duration,
                 }
             ]
         }
     async with aiofiles.open("db/logging.json", "w") as fp:
-        await json.dump(data, fp)
+        await json.dump(fp, data)

@@ -22,7 +22,10 @@ class Stuff(commands.Cog, name="unrelated"):
 
         embed.add_field(name="Creator", value="[Unpredictable#9443] ")
         embed.add_field(name="Contributors", value="None")
-        embed.add_field(name="Special thanks", value="[X19Z10#1125] for modal idea")
+        embed.add_field(
+            name="Special thanks",
+            value="[X19Z10#1125] for modal idea (modal still sucks and very limited so no)",
+        )
 
         await ctx.send(embed=embed)
 
