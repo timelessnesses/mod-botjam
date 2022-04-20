@@ -56,7 +56,7 @@ class Errors(commands.Cog):
             await ctx.send(
                 embed=discord.Embed(
                     title="Missing permissions",
-                    description=f"You do need the `{', '.join(exception.missing_perms)}` permission.",
+                    description=f"You do need the `{', '.join(exception.missing_permissions)}` permission.",
                     color=discord.Color.red(),
                 )
             )
