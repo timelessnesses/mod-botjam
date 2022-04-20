@@ -52,6 +52,14 @@ class Errors(commands.Cog):
                     color=discord.Color.red(),
                 )
             )
+        elif isinstance(exception, commands.MissingPermissions):
+            await ctx.send(
+                embed=discord.Embed(
+                    title="Missing permissions",
+                    description=f"You do need the `{', '.join(exception.missing_perms)}` permission.",
+                    color=discord.Color.red(),
+                )
+            )
         else:
             print(
                 "Ignoring exception in command {}:".format(ctx.command), file=sys.stderr
