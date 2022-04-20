@@ -1,7 +1,8 @@
+import sys
+
+import aiofiles
 import discord
 from discord.ext import commands
-import aiofiles
-import sys
 
 sys.path.append("src")
 import utils.json

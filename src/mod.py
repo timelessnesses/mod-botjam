@@ -4,8 +4,9 @@ import discord
 from discord.ext import commands
 
 sys.path.append("src")
-from datetime import datetime
 import datetime as n
+from datetime import datetime
+
 import aiofiles
 
 import utils.embedgen
