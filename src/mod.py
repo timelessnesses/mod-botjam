@@ -54,7 +54,7 @@ class Moderation(commands.Cog):
                 )
             )
         try:
-            user = self.bot.fetch_user(user)
+            user = await self.bot.fetch_user(user)
         except discord.NotFound:
             return await ctx.send(
                 embed=discord.Embed(
@@ -831,7 +831,7 @@ class Moderation(commands.Cog):
             db = await utils.json.load(fp)
         g = None
         try:
-            for i in db[str(ctx.guild.id)]["logs"]:
+            for i in db[str(ctx.guild.id)]["logging"]:
                 if i["id"] == id:
                     g = i
                     if i["type"] != "warn":
@@ -842,7 +842,9 @@ class Moderation(commands.Cog):
                                 color=discord.Color.red(),
                             )
                         )
-                    db[str(ctx.guild.id)]["logs"].remove(i)
+                    del db[str(ctx.guild.id)]["logging"][
+                        db[str(ctx.guild.id)]["logging"].index(i)
+                    ]
                     await ctx.send(
                         embed=discord.Embed(
                             title="The warning has been deleted",
@@ -852,7 +854,8 @@ class Moderation(commands.Cog):
                             color=discord.Color.green(),
                         )
                     )
-        except KeyError:
+        except KeyError as e:
+            traceback.print_exc()
             return await ctx.send(
                 embed=discord.Embed(
                     title="The warning doesn't exist",
@@ -861,15 +864,14 @@ class Moderation(commands.Cog):
                 )
             )
         await self.log(ctx, "delwarn", id, reason)
-        await utils.logger.log(
+        await utils.logger.del_warn_log(
             id,
             ctx.guild.id,
             utils.logger.Types.delwarn,
             ctx.author.id,
-            0 + +g["user"],
+            g["target"],
             datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
             None,
-            g["duration"],
         )
 
     @commands.command(name="warns", aliases=["warnings"])

@@ -17,6 +17,7 @@ class Types:
     unmute = "unmute"
     delwarn = "delwarn"
     purge = "purge"
+    hackban = "hackban"
 
 
 async def log(
@@ -98,5 +99,51 @@ async def log_mute(
                 }
             ]
         }
+    async with aiofiles.open("db/logging.json", "w") as fp:
+        await json.dump(fp, data)
+
+
+async def del_warn_log(
+    id: str,
+    guild: int,
+    type: Types,
+    actioner: typing.Union[discord.Member, discord.User],
+    target: typing.Union[discord.Member, discord.User],
+    when: str,
+    reason: str = None,
+):
+    async with aiofiles.open("db/logging.json") as fp:
+        data = await json.load(fp)
+
+    try:
+        data[str(guild)]["logging"].append(
+            {
+                "id": id,
+                "type": type,
+                "actioner": actioner,
+                "target": target,
+                "when": when,
+                "reason": reason,
+            }
+        )
+    except KeyError:
+        data[str(guild)] = {
+            "logging": [
+                {
+                    "id": id,
+                    "type": type,
+                    "actioner": actioner,
+                    "target": target,
+                    "when": when,
+                    "reason": reason,
+                }
+            ]
+        }
+    try:
+        for logs in data[str(guild)]["logging"]:
+            if logs["id"] == id:
+                data[str(guild)]["logging"].remove(logs)
+    except:
+        pass
     async with aiofiles.open("db/logging.json", "w") as fp:
         await json.dump(fp, data)

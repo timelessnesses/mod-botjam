@@ -40,6 +40,7 @@ async def load_modules(bot: commands.Bot) -> None:
     for file in os.listdir("./src"):
         if file.endswith(".py") and not file.startswith("_"):
             await bot.load_extension(f"src.{file[:-3]}")
+    await bot.load_extension("jishaku")
 
 
 def get_git_revision_short_hash() -> str:
@@ -58,7 +59,6 @@ async def main():
     global bot
     async with bot:
         await load_modules(bot)
-        await jishaku.cog.async_setup(bot)  # e
         await bot.start(os.getenv("DISCORD_TOKEN"))
 
 
