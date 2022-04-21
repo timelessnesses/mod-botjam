@@ -1,13 +1,9 @@
 import asyncio
-
 import traceback
-
 from typing import Any, Dict, Optional
 
 import discord
-
 from discord.ext import commands, menus
-
 from discord.ext.commands import Paginator as CommandPaginator
 
 
