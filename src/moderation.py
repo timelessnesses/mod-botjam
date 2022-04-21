@@ -47,7 +47,7 @@ class Moderation(commands.Cog):
         reason: The reason for the ban (default: No reason provided)
         """
         if ctx.author.guild_permissions.ban_members is False:
-            raise commands.MissingPermissions(ctx.author.guild_permissions.ban_members)
+            raise commands.MissingPermissions(["ban_members"])
         if disable_asking.lower() not in ("true", "false"):
             return await ctx.send(
                 embed=discord.Embed(
@@ -156,7 +156,7 @@ class Moderation(commands.Cog):
         disable asking: Whether or not to ask for confirmation (default: false)
         """
         if ctx.author.guild_permissions.kick_members is False:
-            raise commands.MissingPermissions(ctx.author.guild_permissions.kick_members)
+            raise commands.MissingPermissions(["kick_members"])
         if disable_asking.lower() not in ("true", "false"):
             return await ctx.send(
                 embed=discord.Embed(
@@ -295,7 +295,7 @@ class Moderation(commands.Cog):
         disable asking: Whether or not to ask for confirmation (default: false)
         """
         if ctx.author.guild_permissions.ban_members is False:
-            raise commands.MissingPermissions(ctx.author.guild_permissions.ban_members)
+            raise commands.MissingPermissions(["ban_members"])
 
         if disable_asking.lower() not in ("true", "false"):
             return await ctx.send(
@@ -405,7 +405,7 @@ class Moderation(commands.Cog):
         disable asking: Whether or not to ask for confirmation (default: false)
         """
         if ctx.author.guild_permissions.ban_members is False:
-            raise commands.MissingPermissions(ctx.author.guild_permissions.ban_members)
+            raise commands.MissingPermissions(["ban_members"])
 
         if disable_asking.lower() not in ("true", "false"):
             return await ctx.send(
@@ -506,7 +506,7 @@ class Moderation(commands.Cog):
         disable asking: Whether or not to ask for confirmation (default: false)
         """
         if ctx.author.guild_permissions.manage_roles is False:
-            raise commands.MissingPermissions(ctx.author.guild_permissions.manage_roles)
+            raise commands.MissingPermissions(["manage_roles"])
         if disable_asking.lower() not in ("true", "false"):
             return await ctx.send(
                 embed=discord.Embed(
@@ -649,7 +649,7 @@ class Moderation(commands.Cog):
         disable asking: Whether or not to ask for confirmation (default: false)
         """
         if ctx.author.guild_permissions.manage_roles is False:
-            raise commands.MissingPermissions(ctx.author.guild_permissions.manage_roles)
+            raise commands.MissingPermissions(["manage_roles"])
 
         if member is None:
             return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
@@ -724,7 +724,7 @@ class Moderation(commands.Cog):
         disable asking: Whether or not to ask for confirmation (default: false)
         """
         if ctx.author.guild_permissions.manage_roles is False:
-            raise commands.MissingPermissions(ctx.author.guild_permissions.manage_roles)
+            raise commands.MissingPermissions(["manage_roles"])
         if disable_asking.lower() not in ("true", "false"):
             return await ctx.send(
                 embed=discord.Embed(
@@ -819,7 +819,7 @@ class Moderation(commands.Cog):
         disable asking: Whether or not to ask for confirmation (default: false)
         """
         if ctx.author.guild_permissions.manage_roles is False:
-            raise commands.MissingPermissions(ctx.author.guild_permissions.manage_roles)
+            raise commands.MissingPermissions(["manage_roles"])
         if disable_asking.lower() not in ("true", "false"):
             return await ctx.send(
                 embed=discord.Embed(
@@ -905,7 +905,7 @@ class Moderation(commands.Cog):
         member: The member to get the warnings of
         """
         if ctx.author.guild_permissions.manage_roles is False:
-            raise commands.MissingPermissions(ctx.author.guild_permissions.manage_roles)
+            raise commands.MissingPermissions(["manage_roles"])
         if member is None:
             return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
         async with aiofiles.open("db/logging.json") as fp:
@@ -972,9 +972,7 @@ class Moderation(commands.Cog):
         Purge messages
         """
         if ctx.author.guild_permissions.manage_messages is False:
-            raise commands.MissingPermissions(
-                ctx.author.guild_permissions.manage_messages
-            )
+            raise commands.MissingPermissions(["manage_messages"])
         if amount is None:
             return await ctx.send(embed=utils.embedgen.error_required_arg("amount"))
         await ctx.channel.purge(limit=amount + 1)
@@ -1022,9 +1020,7 @@ class Moderation(commands.Cog):
         id: The id of the log to get
         """
         if ctx.author.guild_permissions.manage_messages is False:
-            raise commands.MissingPermissions(
-                ctx.author.guild_permissions.manage_messages
-            )
+            raise commands.MissingPermissions(["manage_messages"])
         if id is None:
             return await ctx.send(embed=utils.embedgen.error_required_arg("id"))
         async with aiofiles.open("db/logging.json") as fp:
@@ -1080,10 +1076,8 @@ class Moderation(commands.Cog):
         Required arguments:
         channel: The channel to log to
         """
-        if ctx.author.guild_permissions.manage_messages is False:
-            raise commands.MissingPermissions(
-                ctx.author.guild_permissions.manage_messages
-            )
+        if ctx.author.guild_permissions.administrator is False:
+            raise commands.MissingPermissions(["administrators"])
         await channel.send(
             embed=discord.Embed(
                 title="This channel has been claimed for logging",
