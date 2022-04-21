@@ -1,3 +1,4 @@
+# Stole from R. Danny
 from __future__ import annotations
 
 import inspect
@@ -8,7 +9,7 @@ import discord
 from discord.ext import commands, menus
 
 from .utils import time
-from .utils.paginator import RoboPages
+from .utils.paginator import Pages
 
 
 class GroupHelpPageSource(menus.ListPageSource):
@@ -162,9 +163,9 @@ class FrontPageSource(menus.PageSource):
         return embed
 
 
-class HelpMenu(RoboPages):
+class HelpMenu(Pages):
     def __init__(self, source: menus.PageSource, ctx: commands.Context):
-        super().__init__(source, ctx=ctx, compact=False)
+        super().__init__(source, ctx=ctx, compact=True)
 
     def add_categories(
         self, commands: Dict[commands.Cog, List[commands.Command]]

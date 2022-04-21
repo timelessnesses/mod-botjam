@@ -31,7 +31,6 @@ class Moderation(commands.Cog):
         return "❗"
 
     @commands.command(name="hackban", aliases=["hb"])
-    @commands.has_permissions(ban_members=True)
     async def hackban(
         self,
         ctx: discord.Interaction,
@@ -47,6 +46,8 @@ class Moderation(commands.Cog):
         user: The user to ban (ID)
         reason: The reason for the ban (default: No reason provided)
         """
+        if ctx.author.guild_permissions.ban_members is False:
+            raise commands.MissingPermissions(ctx.author.guild_permissions.ban_members)
         if disable_asking.lower() not in ("true", "false"):
             return await ctx.send(
                 embed=discord.Embed(
@@ -91,7 +92,7 @@ class Moderation(commands.Cog):
             view = utils.views.Confirm()
             await ctx.send(
                 embed=discord.Embed(
-                    title="Are you sure you want to kick {}?".format(member.name),
+                    title="Are you sure you want to hackban {}?".format(member.name),
                     color=discord.Color.red(),
                 ),
                 view=view,
@@ -106,7 +107,8 @@ class Moderation(commands.Cog):
             if not view.value:
                 return await ctx.send(
                     embed=discord.Embed(
-                        title="You cancelled the kick", color=discord.Color.red()
+                        title="You cancelled the hackban process",
+                        color=discord.Color.red(),
                     )
                 )
         await ctx.guild.ban(user, reason=reason)
@@ -138,7 +140,6 @@ class Moderation(commands.Cog):
         )
 
     @commands.command(name="kick")
-    @commands.has_permissions(kick_members=True)
     async def kick(
         self,
         ctx: commands.Context,
@@ -154,6 +155,8 @@ class Moderation(commands.Cog):
         reason: The reason for kicking the member (default: No reason specified) (warning: Please wrap the reason in double quote or single quote.)
         disable asking: Whether or not to ask for confirmation (default: false)
         """
+        if ctx.author.guild_permissions.kick_members is False:
+            raise commands.MissingPermissions(ctx.author.guild_permissions.kick_members)
         if disable_asking.lower() not in ("true", "false"):
             return await ctx.send(
                 embed=discord.Embed(
@@ -274,7 +277,6 @@ class Moderation(commands.Cog):
         await channel.send(embed=embed)
 
     @commands.command(name="ban")
-    @commands.has_permissions(ban_members=True)
     async def ban(
         self,
         ctx: commands.Context,
@@ -290,6 +292,9 @@ class Moderation(commands.Cog):
         reason: The reason for banning the member (default: No reason specified) (warning: Please wrap the reason in double quote or single quote.)
         disable asking: Whether or not to ask for confirmation (default: false)
         """
+        if ctx.author.guild_permissions.ban_members is False:
+            raise commands.MissingPermissions(ctx.author.guild_permissions.ban_members)
+
         if disable_asking.lower() not in ("true", "false"):
             return await ctx.send(
                 embed=discord.Embed(
@@ -382,7 +387,6 @@ class Moderation(commands.Cog):
         )
 
     @commands.command(name="unban")
-    @commands.has_permissions(ban_members=True)
     async def unban(
         self,
         ctx: commands.Context,
@@ -398,6 +402,9 @@ class Moderation(commands.Cog):
         reason: The reason for unbanning the member (default: No reason specified) (warning: Please wrap the reason in double quote or single quote.)
         disable asking: Whether or not to ask for confirmation (default: false)
         """
+        if ctx.author.guild_permissions.ban_members is False:
+            raise commands.MissingPermissions(ctx.author.guild_permissions.ban_members)
+
         if disable_asking.lower() not in ("true", "false"):
             return await ctx.send(
                 embed=discord.Embed(
@@ -479,7 +486,6 @@ class Moderation(commands.Cog):
             return n.timedelta(seconds=int(time))
 
     @commands.command(name="mute", aliases=["timeout", "tm", "m"])
-    @commands.has_permissions(manage_roles=True)
     async def mute(
         self,
         ctx: commands.Context,
@@ -497,6 +503,8 @@ class Moderation(commands.Cog):
         reason: The reason for muting the member (default: No reason specified) (warning: Please wrap the reason in double quote or single quote.)
         disable asking: Whether or not to ask for confirmation (default: false)
         """
+        if ctx.author.guild_permissions.manage_roles is False:
+            raise commands.MissingPermissions(ctx.author.guild_permissions.manage_roles)
         if disable_asking.lower() not in ("true", "false"):
             return await ctx.send(
                 embed=discord.Embed(
@@ -625,7 +633,6 @@ class Moderation(commands.Cog):
         )
 
     @commands.command(name="unmute", aliases=["untimeout", "untm", "um"])
-    @commands.has_permissions(manage_roles=True)
     async def unmute(
         self,
         ctx: commands.Context,
@@ -639,6 +646,9 @@ class Moderation(commands.Cog):
         member: The member to unmute
         disable asking: Whether or not to ask for confirmation (default: false)
         """
+        if ctx.author.guild_permissions.manage_roles is False:
+            raise commands.MissingPermissions(ctx.author.guild_permissions.manage_roles)
+
         if member is None:
             return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
         if not disable_asking == "false":
@@ -696,7 +706,6 @@ class Moderation(commands.Cog):
         )
 
     @commands.command(name="warn")
-    @commands.has_permissions(manage_roles=True)
     async def warn(
         self,
         ctx: commands.Context,
@@ -712,6 +721,8 @@ class Moderation(commands.Cog):
         reason: The reason for the warn
         disable asking: Whether or not to ask for confirmation (default: false)
         """
+        if ctx.author.guild_permissions.manage_roles is False:
+            raise commands.MissingPermissions(ctx.author.guild_permissions.manage_roles)
         if disable_asking.lower() not in ("true", "false"):
             return await ctx.send(
                 embed=discord.Embed(
@@ -790,7 +801,6 @@ class Moderation(commands.Cog):
         )
 
     @commands.command(name="delwarn")
-    @commands.has_permissions(manage_roles=True)
     async def delwarn(
         self,
         ctx: commands.Context,
@@ -806,6 +816,8 @@ class Moderation(commands.Cog):
         reason: The reason for the deletion
         disable asking: Whether or not to ask for confirmation (default: false)
         """
+        if ctx.author.guild_permissions.manage_roles is False:
+            raise commands.MissingPermissions(ctx.author.guild_permissions.manage_roles)
         if disable_asking.lower() not in ("true", "false"):
             return await ctx.send(
                 embed=discord.Embed(
@@ -883,7 +895,6 @@ class Moderation(commands.Cog):
         )
 
     @commands.command(name="warns", aliases=["warnings"])
-    @commands.has_permissions(manage_roles=True)
     async def warns(self, ctx: commands.Context, member: discord.Member = None) -> None:
         """
         Get the warnings of a member
@@ -891,6 +902,8 @@ class Moderation(commands.Cog):
         Required arguments:
         member: The member to get the warnings of
         """
+        if ctx.author.guild_permissions.manage_roles is False:
+            raise commands.MissingPermissions(ctx.author.guild_permissions.manage_roles)
         if member is None:
             return await ctx.send(embed=utils.embedgen.error_required_arg("member"))
         async with aiofiles.open("db/logging.json") as fp:
@@ -952,11 +965,14 @@ class Moderation(commands.Cog):
             await asyncio.sleep(0.5)
 
     @commands.command(name="purge", aliases=["bulkdel", "del", "clear"])
-    @commands.has_permissions(manage_messages=True)
     async def purge(self, ctx: commands.Context, amount: int = None):
         """
         Purge messages
         """
+        if ctx.author.guild_permissions.manage_messages is False:
+            raise commands.MissingPermissions(
+                ctx.author.guild_permissions.manage_messages
+            )
         if amount is None:
             return await ctx.send(embed=utils.embedgen.error_required_arg("amount"))
         await ctx.channel.purge(limit=amount + 1)
@@ -996,7 +1012,6 @@ class Moderation(commands.Cog):
         await self.log(ctx, "purge", d, None)
 
     @commands.command(name="getlogs", aliases=["log"])
-    @commands.has_permissions(manage_messages=True)
     async def getlog(self, ctx: commands.Context, id: str = None):
         """
         Get log with ID
@@ -1004,6 +1019,10 @@ class Moderation(commands.Cog):
         Required arguments:
         id: The id of the log to get
         """
+        if ctx.author.guild_permissions.manage_messages is False:
+            raise commands.MissingPermissions(
+                ctx.author.guild_permissions.manage_messages
+            )
         if id is None:
             return await ctx.send(embed=utils.embedgen.error_required_arg("id"))
         async with aiofiles.open("db/logging.json") as fp:
@@ -1052,11 +1071,17 @@ class Moderation(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name="setup_logging")
-    @commands.has_permissions(administrator=True)
     async def setup_logging(self, ctx: commands.Context, channel: discord.TextChannel):
         """
         Setup logging
+
+        Required arguments:
+        channel: The channel to log to
         """
+        if ctx.author.guild_permissions.manage_messages is False:
+            raise commands.MissingPermissions(
+                ctx.author.guild_permissions.manage_messages
+            )
         await channel.send(
             embed=discord.Embed(
                 title="This channel has been claimed for logging",
