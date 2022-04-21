@@ -34,7 +34,7 @@ class Moderation(commands.Cog):
     async def hackban(
         self,
         ctx: discord.Interaction,
-        user: int = None,
+        user: int,
         reason: str = "No reason provided",
         disable_asking: str = "false",
     ) -> None:
@@ -143,7 +143,7 @@ class Moderation(commands.Cog):
     async def kick(
         self,
         ctx: commands.Context,
-        member: discord.Member = None,
+        member: discord.Member,
         reason: str = "No reason specified",
         disable_asking: str = "false",
     ) -> None:
@@ -280,7 +280,7 @@ class Moderation(commands.Cog):
     async def ban(
         self,
         ctx: commands.Context,
-        member: discord.Member = None,
+        member: discord.Member,
         reason: str = "No reason specified",
         disable_asking: str = "false",
     ) -> None:
@@ -390,7 +390,7 @@ class Moderation(commands.Cog):
     async def unban(
         self,
         ctx: commands.Context,
-        member: discord.User = None,
+        member: discord.User,
         reason: str = "No reason specified",
         disable_asking: str = "false",
     ) -> None:
@@ -489,7 +489,7 @@ class Moderation(commands.Cog):
     async def mute(
         self,
         ctx: commands.Context,
-        member: discord.Member = None,
+        member: discord.Member,
         duration: str = "6h",
         reason: str = "No reason specified",
         disable_asking: str = "false",
@@ -636,7 +636,7 @@ class Moderation(commands.Cog):
     async def unmute(
         self,
         ctx: commands.Context,
-        member: discord.Member = None,
+        member: discord.Member,
         disable_asking: str = "false",
     ) -> None:
         """
@@ -709,7 +709,7 @@ class Moderation(commands.Cog):
     async def warn(
         self,
         ctx: commands.Context,
-        member: discord.Member = None,
+        member: discord.Member,
         reason: str = "No reason provided",
         disable_asking: str = "true",
     ) -> None:
@@ -849,7 +849,7 @@ class Moderation(commands.Cog):
                 )
         async with aiofiles.open("db/logging.json") as fp:
             db = await utils.json.load(fp)
-        g = None
+        g
         try:
             for i in db[str(ctx.guild.id)]["logging"]:
                 if i["id"] == id:
@@ -895,7 +895,7 @@ class Moderation(commands.Cog):
         )
 
     @commands.command(name="warns", aliases=["warnings"])
-    async def warns(self, ctx: commands.Context, member: discord.Member = None) -> None:
+    async def warns(self, ctx: commands.Context, member: discord.Member) -> None:
         """
         Get the warnings of a member
 
@@ -965,7 +965,7 @@ class Moderation(commands.Cog):
             await asyncio.sleep(0.5)
 
     @commands.command(name="purge", aliases=["bulkdel", "del", "clear"])
-    async def purge(self, ctx: commands.Context, amount: int = None):
+    async def purge(self, ctx: commands.Context, amount: int):
         """
         Purge messages
         """
@@ -1012,7 +1012,7 @@ class Moderation(commands.Cog):
         await self.log(ctx, "purge", d, None)
 
     @commands.command(name="getlogs", aliases=["log"])
-    async def getlog(self, ctx: commands.Context, id: str = None):
+    async def getlog(self, ctx: commands.Context, id: str):
         """
         Get log with ID
 
