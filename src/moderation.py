@@ -30,7 +30,7 @@ class Moderation(commands.Cog):
     def display_emoji(self):
         return "❗"
 
-    @commands.command(name="hackban", aliases=["hb"])
+    @commands.hybrid_command(name="hackban", aliases=["hb"])
     async def hackban(
         self,
         ctx: discord.Interaction,
@@ -128,7 +128,7 @@ class Moderation(commands.Cog):
             )
         )
 
-        await self.log(ctx, "hackban", d, reason)
+        await self.log(ctx, "hackban", d, reason, user)
         await utils.logger.log(
             d,
             ctx.guild.id,
@@ -139,7 +139,7 @@ class Moderation(commands.Cog):
             reason,
         )
 
-    @commands.command(name="kick")
+    @commands.hybrid_command(name="kick")
     async def kick(
         self,
         ctx: commands.Context,
@@ -239,7 +239,7 @@ class Moderation(commands.Cog):
             )
         )
 
-        await self.log(ctx, "kick", d, reason)
+        await self.log(ctx, "kick", d, reason, member)
         await utils.logger.log(
             d,
             ctx.guild.id,
@@ -250,7 +250,9 @@ class Moderation(commands.Cog):
             reason,
         )
 
-    async def log(self, ctx: commands.Context, action: str, id: str, reason) -> None:
+    async def log(
+        self, ctx: commands.Context, action: str, id: str, reason, target: discord.User
+    ) -> None:
         async with aiofiles.open("db/logging.json") as fp:
             db = await utils.json.load(fp)
         try:
@@ -262,12 +264,12 @@ class Moderation(commands.Cog):
         if channel is None:
             return
         embed = discord.Embed(
-            title="Member {}".format(action),
+            title="Action {}".format(action),
             description="{} has been {} from {}\nActioner: {}\nReason: {}\nWhen: {}\nLog ID: {}".format(
-                ctx.author.name,
+                target.name + "#" + target.discriminator,
                 action,
                 ctx.guild.name,
-                ctx.author.name,
+                ctx.author.mention,
                 reason,
                 datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
                 id,
@@ -276,7 +278,7 @@ class Moderation(commands.Cog):
         )
         await channel.send(embed=embed)
 
-    @commands.command(name="ban")
+    @commands.hybrid_command(name="ban")
     async def ban(
         self,
         ctx: commands.Context,
@@ -375,7 +377,7 @@ class Moderation(commands.Cog):
                 color=discord.Color.green(),
             )
         )
-        await self.log(ctx, "ban", d, reason)
+        await self.log(ctx, "ban", d, reason, member)
         await utils.logger.log(
             d,
             ctx.guild.id,
@@ -386,7 +388,7 @@ class Moderation(commands.Cog):
             reason,
         )
 
-    @commands.command(name="unban")
+    @commands.hybrid_command(name="unban")
     async def unban(
         self,
         ctx: commands.Context,
@@ -452,7 +454,7 @@ class Moderation(commands.Cog):
             )
         )
 
-        await self.log(ctx, "unban", d, reason)
+        await self.log(ctx, "unban", d, reason, member)
         await utils.logger.log(
             d,
             ctx.guild.id,
@@ -485,7 +487,7 @@ class Moderation(commands.Cog):
         else:
             return n.timedelta(seconds=int(time))
 
-    @commands.command(name="mute", aliases=["timeout", "tm", "m"])
+    @commands.hybrid_command(name="mute", aliases=["timeout", "tm", "m"])
     async def mute(
         self,
         ctx: commands.Context,
@@ -620,7 +622,7 @@ class Moderation(commands.Cog):
                 )
             )
 
-        await self.log(ctx, "mute", d, reason)
+        await self.log_mute(ctx, "mute", d, reason, member, self._parse_time(duration))
         await utils.logger.log_mute(
             d,
             ctx.guild.id,
@@ -632,7 +634,7 @@ class Moderation(commands.Cog):
             duration,
         )
 
-    @commands.command(name="unmute", aliases=["untimeout", "untm", "um"])
+    @commands.hybrid_command(name="unmute", aliases=["untimeout", "untm", "um"])
     async def unmute(
         self,
         ctx: commands.Context,
@@ -693,7 +695,7 @@ class Moderation(commands.Cog):
             )
         )
 
-        await self.log(ctx, "unmute", d, "")
+        await self.log_mute(ctx, "unmute", d, "", member, n.timedelta(seconds=0))
         await utils.logger.log_mute(
             d,
             ctx.guild.id,
@@ -705,7 +707,7 @@ class Moderation(commands.Cog):
             "",
         )
 
-    @commands.command(name="warn")
+    @commands.hybrid_command(name="warn")
     async def warn(
         self,
         ctx: commands.Context,
@@ -789,7 +791,7 @@ class Moderation(commands.Cog):
             )
         )
 
-        await self.log(ctx, "warn", d, reason)
+        await self.log(ctx, "warn", d, reason, member)
         await utils.logger.log(
             d,
             ctx.guild.id,
@@ -800,7 +802,7 @@ class Moderation(commands.Cog):
             reason,
         )
 
-    @commands.command(name="delwarn")
+    @commands.hybrid_command(name="delwarn")
     async def delwarn(
         self,
         ctx: commands.Context,
@@ -883,7 +885,7 @@ class Moderation(commands.Cog):
                     color=discord.Color.red(),
                 )
             )
-        await self.log(ctx, "delwarn", id, reason)
+        await self.log(ctx, "delwarn", id, reason, self.bot.fetch_user(g["target"]))
         await utils.logger.del_warn_log(
             id,
             ctx.guild.id,
@@ -894,7 +896,7 @@ class Moderation(commands.Cog):
             None,
         )
 
-    @commands.command(name="warns", aliases=["warnings"])
+    @commands.hybrid_command(name="warns", aliases=["warnings"])
     async def warns(self, ctx: commands.Context, member: discord.Member) -> None:
         """
         Get the warnings of a member
@@ -964,7 +966,7 @@ class Moderation(commands.Cog):
             await ctx.send(embed=i)
             await asyncio.sleep(0.5)
 
-    @commands.command(name="purge", aliases=["bulkdel", "del", "clear"])
+    @commands.hybrid_command(name="purge", aliases=["bulkdel", "del", "clear"])
     async def purge(self, ctx: commands.Context, amount: int):
         """
         Purge messages
@@ -1011,7 +1013,7 @@ class Moderation(commands.Cog):
 
         await self.log(ctx, "purge", d, None)
 
-    @commands.command(name="getlogs", aliases=["log"])
+    @commands.hybrid_command(name="getlogs", aliases=["log"])
     async def getlog(self, ctx: commands.Context, id: str):
         """
         Get log with ID
@@ -1070,7 +1072,7 @@ class Moderation(commands.Cog):
             embed.add_field(name="When", value=i["when"], inline=False)
         await ctx.send(embed=embed)
 
-    @commands.command(name="setup_logging")
+    @commands.hybrid_command(name="setup_logging")
     async def setup_logging(self, ctx: commands.Context, channel: discord.TextChannel):
         """
         Setup logging
