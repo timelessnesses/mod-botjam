@@ -913,7 +913,6 @@ class Moderation(commands.Cog):
         try:
             warns = db[str(ctx.guild.id)]["logging"]
         except KeyError:
-            print("guild not found or logs isn't exist?")
             return await ctx.send(
                 embed=discord.Embed(
                     title="There are no warnings",
@@ -926,7 +925,6 @@ class Moderation(commands.Cog):
                 i for i in warns if i["target"] == member.id and i["type"] == "warn"
             ]
         except KeyError as e:
-            print("list comprehension error?")
             return await ctx.send(
                 embed=discord.Embed(
                     title="There are no warnings",
@@ -935,7 +933,6 @@ class Moderation(commands.Cog):
                 )
             )
         if not warns:
-            print("no warns")
             return await ctx.send(
                 embed=discord.Embed(
                     title="There are no warnings",
