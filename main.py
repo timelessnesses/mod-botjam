@@ -32,7 +32,9 @@ async def on_ready() -> None:
     print(bot.user.id)
     print("------")
 
-    await bot.change_presence(activity=discord.Game(name="n!help"))
+    await bot.change_presence(
+        activity=discord.Game(name="n!help"), status=discord.Status.Idle
+    )
     await bot.tree.sync()
 
 
