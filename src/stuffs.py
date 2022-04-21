@@ -7,9 +7,19 @@ from discord import app_commands
 from discord.ext import commands
 
 
-class Stuff(commands.Cog, name="unrelated"):
+class Stuff(
+    commands.Cog,
+):
+    """
+    Miscellaneous commands and stuffs that don't fit anywhere else.
+    """
+
     def __init__(self, bot):
         self.bot = bot
+
+    @property
+    def display_emoji(self):
+        return "💭"
 
     @commands.hybrid_command(name="credits", aliases=["c"])
     async def credits(self, ctx):

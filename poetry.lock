@@ -172,6 +172,24 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
+name = "discord-ext-menus"
+version = "1.0.0a31+gfbb8803"
+description = "An extension module to make reaction based menus with discord.py"
+category = "main"
+optional = false
+python-versions = ">=3.5.3"
+develop = false
+
+[package.dependencies]
+"discord.py" = ">=1.2.5"
+
+[package.source]
+type = "git"
+url = "https://github.com/Rapptz/discord-ext-menus"
+reference = "master"
+resolved_reference = "fbb8803779373357e274e1540b368365fd9d8074"
+
+[[package]]
 name = "discord.py"
 version = "2.0.0a4151+gde941aba"
 description = "A Python wrapper for the Discord API"
@@ -304,6 +322,14 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "parsedatetime"
+version = "2.6"
+description = "Parse human-readable date/time text."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "pathspec"
 version = "0.9.0"
 description = "Utility library for gitignore style pattern matching of file paths."
@@ -355,6 +381,17 @@ description = "C parser in Python"
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[[package]]
+name = "python-dateutil"
+version = "2.8.2"
+description = "Extensions to the standard Python datetime module"
+category = "main"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+
+[package.dependencies]
+six = ">=1.5"
 
 [[package]]
 name = "python-dotenv"
@@ -431,7 +468,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "2f59ea215df700981769414eddf1813d10b80103bd733f7fb458f3b882013d61"
+content-hash = "f387aec840803bee0d59648f85fd96b0f7f8904bff97bed11a0db3dc17d79548"
 
 [metadata.files]
 aiodns = [
@@ -705,6 +742,7 @@ colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
 ]
+discord-ext-menus = []
 "discord.py" = []
 frozenlist = [
     {file = "frozenlist-1.3.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:d2257aaba9660f78c7b1d8fea963b68f3feffb1a9d5d05a18401ca9eb3e8d0a3"},
@@ -889,6 +927,10 @@ orjson = [
     {file = "orjson-3.6.8-cp39-none-win_amd64.whl", hash = "sha256:0c89b419914d3d1f65a1b0883f377abe42a6e44f6624ba1c63e8846cbfc2fa60"},
     {file = "orjson-3.6.8.tar.gz", hash = "sha256:e19d23741c5de13689bb316abfccea15a19c264e3ec8eb332a5319a583595ace"},
 ]
+parsedatetime = [
+    {file = "parsedatetime-2.6-py3-none-any.whl", hash = "sha256:cb96edd7016872f58479e35879294258c71437195760746faffedb692aef000b"},
+    {file = "parsedatetime-2.6.tar.gz", hash = "sha256:4cb368fbb18a0b7231f4d76119165451c8d2e35951455dfee97c62a87b04d455"},
+]
 pathspec = [
     {file = "pathspec-0.9.0-py2.py3-none-any.whl", hash = "sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a"},
     {file = "pathspec-0.9.0.tar.gz", hash = "sha256:e564499435a2673d586f6b2130bb5b95f04a3ba06f81b8f895b651a3c76aabb1"},
@@ -967,6 +1009,10 @@ pycares = [
 pycparser = [
     {file = "pycparser-2.21-py2.py3-none-any.whl", hash = "sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9"},
     {file = "pycparser-2.21.tar.gz", hash = "sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"},
+]
+python-dateutil = [
+    {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
+    {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
 ]
 python-dotenv = [
     {file = "python-dotenv-0.20.0.tar.gz", hash = "sha256:b7e3b04a59693c42c36f9ab1cc2acc46fa5df8c78e178fc33a8d4cd05c8d498f"},

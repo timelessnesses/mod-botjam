@@ -19,8 +19,16 @@ import utils.views
 
 
 class Moderation(commands.Cog):
+    """
+    A moderation utility with logging feature.
+    """
+
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
+
+    @property
+    def display_emoji(self):
+        return "❗"
 
     @commands.command(name="hackban", aliases=["hb"])
     @commands.has_permissions(ban_members=True)

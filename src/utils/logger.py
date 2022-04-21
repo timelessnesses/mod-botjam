@@ -3,7 +3,6 @@ from enum import Enum
 
 import aiofiles
 import discord
-import plum
 
 from . import json
 
