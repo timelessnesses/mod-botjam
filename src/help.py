@@ -281,8 +281,6 @@ class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.old_help_command = bot.help_command
-        bot.help_command = PaginatedHelpCommand()
-        bot.help_command.cog = self
 
     @property
     def display_emoji(self) -> discord.PartialEmoji:
@@ -290,6 +288,12 @@ class Help(commands.Cog):
 
     def cog_unload(self):
         self.bot.help_command = self.old_help_command
+
+    @commands.hybrid_command(name="help", aliases=["h"])
+    async def help(self, ctx: discord.Interaction):
+        """Commands for utilities related to Discord or the Bot itself."""
+        d = PaginatedHelpCommand()
+        d.cog = self
 
 
 async def setup(bot):
