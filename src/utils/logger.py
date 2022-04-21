@@ -17,6 +17,7 @@ class Types:
     delwarn = "delwarn"
     purge = "purge"
     hackban = "hackban"
+    profanity = "profanity"
 
 
 async def log(

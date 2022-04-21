@@ -36,6 +36,14 @@ class Errors(commands.Cog):
                         color=discord.Color.red(),
                     )
                 )
+        elif isinstance(exception, commands.MissingPermissions):
+            await ctx.send(
+                embed=discord.Embed(
+                    title="Missing permissions",
+                    description=f"You do need the `{', '.join(exception.missing_permissions).replace('_',' ')}` permission.",
+                    color=discord.Color.red(),
+                )
+            )
         elif isinstance(exception, commands.MissingRequiredArgument):
             await ctx.send(
                 embed=discord.Embed(
@@ -49,14 +57,6 @@ class Errors(commands.Cog):
                 embed=discord.Embed(
                     title="Bad argument",
                     description=f"The `{exception.param.name}` argument is invalid.",
-                    color=discord.Color.red(),
-                )
-            )
-        elif isinstance(exception, commands.MissingPermissions):
-            await ctx.send(
-                embed=discord.Embed(
-                    title="Missing permissions",
-                    description=f"You do need the `{', '.join(exception.missing_permissions).replace('_',' ')}` permission.",
                     color=discord.Color.red(),
                 )
             )

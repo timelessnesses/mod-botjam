@@ -1,29 +1,29 @@
 [[package]]
-name = "aiodns"
-version = "3.0.0"
-description = "Simple DNS resolver for asyncio"
 category = "main"
+description = "Simple DNS resolver for asyncio"
+name = "aiodns"
 optional = false
 python-versions = "*"
+version = "3.0.0"
 
 [package.dependencies]
 pycares = ">=4.0.0"
 
 [[package]]
-name = "aiofiles"
-version = "0.8.0"
-description = "File support for asyncio."
 category = "main"
+description = "File support for asyncio."
+name = "aiofiles"
 optional = false
 python-versions = ">=3.6,<4.0"
+version = "0.8.0"
 
 [[package]]
-name = "aiohttp"
-version = "3.8.1"
-description = "Async http client/server framework (asyncio)"
 category = "main"
+description = "Async http client/server framework (asyncio)"
+name = "aiohttp"
 optional = false
 python-versions = ">=3.6"
+version = "3.8.1"
 
 [package.dependencies]
 aiodns = {version = "*", optional = true, markers = "extra == \"speedups\""}
@@ -41,42 +41,42 @@ yarl = ">=1.0,<2.0"
 speedups = ["aiodns", "brotli", "cchardet"]
 
 [[package]]
-name = "aiosignal"
-version = "1.2.0"
-description = "aiosignal: a list of registered asynchronous callbacks"
 category = "main"
+description = "aiosignal: a list of registered asynchronous callbacks"
+name = "aiosignal"
 optional = false
 python-versions = ">=3.6"
+version = "1.2.0"
 
 [package.dependencies]
 frozenlist = ">=1.1.0"
 
 [[package]]
-name = "astunparse"
-version = "1.6.3"
-description = "An AST unparser for Python"
 category = "main"
+description = "An AST unparser for Python"
+name = "astunparse"
 optional = false
 python-versions = "*"
+version = "1.6.3"
 
 [package.dependencies]
 six = ">=1.6.1,<2.0"
 
 [[package]]
-name = "async-timeout"
-version = "4.0.2"
-description = "Timeout context manager for asyncio programs"
 category = "main"
+description = "Timeout context manager for asyncio programs"
+name = "async-timeout"
 optional = false
 python-versions = ">=3.6"
+version = "4.0.2"
 
 [[package]]
-name = "attrs"
-version = "21.4.0"
-description = "Classes Without Boilerplate"
 category = "main"
+description = "Classes Without Boilerplate"
+name = "attrs"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+version = "21.4.0"
 
 [package.extras]
 dev = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "zope.interface", "furo", "sphinx", "sphinx-notfound-page", "pre-commit", "cloudpickle"]
@@ -85,12 +85,12 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)"
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "cloudpickle"]
 
 [[package]]
-name = "black"
-version = "22.3.0"
-description = "The uncompromising code formatter."
 category = "dev"
+description = "The uncompromising code formatter."
+name = "black"
 optional = false
 python-versions = ">=3.6.2"
+version = "22.3.0"
 
 [package.dependencies]
 click = ">=8.0.0"
@@ -107,96 +107,96 @@ jupyter = ["ipython (>=7.8.0)", "tokenize-rt (>=3.2.0)"]
 uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
-name = "braceexpand"
-version = "0.1.7"
+category = "main"
 description = "Bash-style brace expansion for Python"
-category = "main"
+name = "braceexpand"
 optional = false
 python-versions = "*"
+version = "0.1.7"
 
 [[package]]
-name = "brotli"
-version = "1.0.9"
+category = "main"
 description = "Python bindings for the Brotli compression library"
-category = "main"
+name = "brotli"
 optional = false
 python-versions = "*"
+version = "1.0.9"
 
 [[package]]
-name = "cchardet"
-version = "2.1.7"
+category = "main"
 description = "cChardet is high speed universal character encoding detector."
-category = "main"
+name = "cchardet"
 optional = false
 python-versions = "*"
+version = "2.1.7"
 
 [[package]]
-name = "cffi"
-version = "1.15.0"
-description = "Foreign Function Interface for Python calling C code."
 category = "main"
+description = "Foreign Function Interface for Python calling C code."
+name = "cffi"
 optional = false
 python-versions = "*"
+version = "1.15.0"
 
 [package.dependencies]
 pycparser = "*"
 
 [[package]]
-name = "charset-normalizer"
-version = "2.0.12"
-description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
 category = "main"
+description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
+name = "charset-normalizer"
 optional = false
 python-versions = ">=3.5.0"
+version = "2.0.12"
 
 [package.extras]
 unicode_backport = ["unicodedata2"]
 
 [[package]]
-name = "click"
-version = "8.1.2"
-description = "Composable command line interface toolkit"
 category = "main"
+description = "Composable command line interface toolkit"
+name = "click"
 optional = false
 python-versions = ">=3.7"
+version = "8.1.2"
 
 [package.dependencies]
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
-name = "colorama"
-version = "0.4.4"
-description = "Cross-platform colored terminal text."
 category = "main"
+description = "Cross-platform colored terminal text."
+name = "colorama"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+version = "0.4.4"
 
 [[package]]
-name = "discord-ext-menus"
-version = "1.0.0a31+gfbb8803"
-description = "An extension module to make reaction based menus with discord.py"
 category = "main"
+description = "An extension module to make reaction based menus with discord.py"
+develop = false
+name = "discord-ext-menus"
 optional = false
 python-versions = ">=3.5.3"
-develop = false
+version = "1.0.0a31+gfbb8803"
 
 [package.dependencies]
 "discord.py" = ">=1.2.5"
 
 [package.source]
-type = "git"
-url = "https://github.com/Rapptz/discord-ext-menus"
 reference = "master"
 resolved_reference = "fbb8803779373357e274e1540b368365fd9d8074"
+type = "git"
+url = "https://github.com/Rapptz/discord-ext-menus"
 
 [[package]]
-name = "discord.py"
-version = "2.0.0a4151+gde941aba"
-description = "A Python wrapper for the Discord API"
 category = "main"
+description = "A Python wrapper for the Discord API"
+develop = false
+name = "discord.py"
 optional = false
 python-versions = ">=3.8.0"
-develop = false
+version = "2.0.0a4154+g832d2c05"
 
 [package.dependencies]
 aiohttp = ">=3.6.0,<4"
@@ -209,34 +209,53 @@ test = ["coverage", "pytest", "pytest-asyncio", "pytest-cov", "pytest-mock"]
 voice = ["PyNaCl (>=1.3.0,<1.6)"]
 
 [package.source]
+reference = "master"
+resolved_reference = "832d2c05421bb62581665038ce2a718a705bdff0"
 type = "git"
 url = "https://github.com/Rapptz/discord.py"
-reference = "master"
-resolved_reference = "de941ababe9da898dd62d2b2a2d21aaecac6bd09"
-
 [[package]]
-name = "frozenlist"
-version = "1.3.0"
-description = "A list-like structure which implements collections.abc.MutableSequence"
 category = "main"
+description = "dta Convert Dict To Attributes!"
+name = "dta"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=2"
+version = "1.3.1"
 
 [[package]]
-name = "idna"
-version = "3.3"
-description = "Internationalized Domain Names in Applications (IDNA)"
 category = "main"
-optional = false
-python-versions = ">=3.5"
-
-[[package]]
-name = "import-expression"
-version = "1.1.4"
-description = "Parses a superset of Python allowing for inline module import expressions"
-category = "main"
+description = "Make aiohttp easier"
+name = "ez-aiohttp"
 optional = false
 python-versions = "*"
+version = "0.1.0"
+
+[package.dependencies]
+aiohttp = {version = "*", extras = ["speedups"]}
+dta = "*"
+
+[[package]]
+category = "main"
+description = "A list-like structure which implements collections.abc.MutableSequence"
+name = "frozenlist"
+optional = false
+python-versions = ">=3.7"
+version = "1.3.0"
+
+[[package]]
+category = "main"
+description = "Internationalized Domain Names in Applications (IDNA)"
+name = "idna"
+optional = false
+python-versions = ">=3.5"
+version = "3.3"
+
+[[package]]
+category = "main"
+description = "Parses a superset of Python allowing for inline module import expressions"
+name = "import-expression"
+optional = false
+python-versions = "*"
+version = "1.1.4"
 
 [package.dependencies]
 astunparse = ">=1.6.3,<2.0.0"
@@ -245,12 +264,12 @@ astunparse = ">=1.6.3,<2.0.0"
 test = ["pytest", "pytest-cov"]
 
 [[package]]
-name = "importlib-metadata"
-version = "4.11.3"
-description = "Read metadata from Python packages"
 category = "main"
+description = "Read metadata from Python packages"
+name = "importlib-metadata"
 optional = false
 python-versions = ">=3.7"
+version = "4.11.3"
 
 [package.dependencies]
 zipp = ">=0.5"
@@ -261,26 +280,26 @@ perf = ["ipython"]
 testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "packaging", "pyfakefs", "flufl.flake8", "pytest-perf (>=0.9.2)", "pytest-black (>=0.3.7)", "pytest-mypy (>=0.9.1)", "importlib-resources (>=1.3)"]
 
 [[package]]
-name = "isort"
-version = "5.10.1"
-description = "A Python utility / library to sort Python imports."
 category = "dev"
+description = "A Python utility / library to sort Python imports."
+name = "isort"
 optional = false
 python-versions = ">=3.6.1,<4.0"
+version = "5.10.1"
 
 [package.extras]
-pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
-requirements_deprecated_finder = ["pipreqs", "pip-api"]
 colors = ["colorama (>=0.4.3,<0.5.0)"]
+pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
 plugins = ["setuptools"]
+requirements_deprecated_finder = ["pipreqs", "pip-api"]
 
 [[package]]
-name = "jishaku"
-version = "2.4.0"
-description = "A discord.py extension including useful tools for bot development and debugging."
 category = "main"
+description = "A discord.py extension including useful tools for bot development and debugging."
+name = "jishaku"
 optional = false
 python-versions = ">=3.8.0"
+version = "2.4.0"
 
 [package.dependencies]
 braceexpand = ">=0.1.7"
@@ -298,75 +317,75 @@ test = ["coverage (>=6.3.2)", "flake8 (>=4.0.1)", "isort (>=5.10.1)", "pylint (>
 voice = ["yt-dlp (>=2022.3.8)"]
 
 [[package]]
-name = "multidict"
-version = "6.0.2"
+category = "main"
 description = "multidict implementation"
-category = "main"
+name = "multidict"
 optional = false
 python-versions = ">=3.7"
+version = "6.0.2"
 
 [[package]]
-name = "mypy-extensions"
-version = "0.4.3"
+category = "dev"
 description = "Experimental type system extensions for programs checked with the mypy typechecker."
-category = "dev"
+name = "mypy-extensions"
 optional = false
 python-versions = "*"
+version = "0.4.3"
 
 [[package]]
-name = "orjson"
-version = "3.6.8"
-description = "Fast, correct Python JSON library supporting dataclasses, datetimes, and numpy"
 category = "main"
+description = "Fast, correct Python JSON library supporting dataclasses, datetimes, and numpy"
+name = "orjson"
 optional = false
 python-versions = ">=3.7"
+version = "3.6.8"
 
 [[package]]
-name = "parsedatetime"
-version = "2.6"
-description = "Parse human-readable date/time text."
 category = "main"
+description = "Parse human-readable date/time text."
+name = "parsedatetime"
 optional = false
 python-versions = "*"
+version = "2.6"
 
 [[package]]
-name = "pathspec"
-version = "0.9.0"
-description = "Utility library for gitignore style pattern matching of file paths."
 category = "dev"
+description = "Utility library for gitignore style pattern matching of file paths."
+name = "pathspec"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
+version = "0.9.0"
 
 [[package]]
-name = "platformdirs"
-version = "2.5.2"
-description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 category = "dev"
+description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
+name = "platformdirs"
 optional = false
 python-versions = ">=3.7"
+version = "2.5.2"
 
 [package.extras]
 docs = ["furo (>=2021.7.5b38)", "proselint (>=0.10.2)", "sphinx-autodoc-typehints (>=1.12)", "sphinx (>=4)"]
 test = ["appdirs (==1.4.4)", "pytest-cov (>=2.7)", "pytest-mock (>=3.6)", "pytest (>=6)"]
 
 [[package]]
-name = "psutil"
-version = "5.9.0"
-description = "Cross-platform lib for process and system monitoring in Python."
 category = "main"
+description = "Cross-platform lib for process and system monitoring in Python."
+name = "psutil"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "5.9.0"
 
 [package.extras]
 test = ["ipaddress", "mock", "unittest2", "enum34", "pywin32", "wmi"]
 
 [[package]]
-name = "pycares"
-version = "4.1.2"
-description = "Python interface for c-ares"
 category = "main"
+description = "Python interface for c-ares"
+name = "pycares"
 optional = false
 python-versions = "*"
+version = "4.1.2"
 
 [package.dependencies]
 cffi = ">=1.5.0"
@@ -375,66 +394,66 @@ cffi = ">=1.5.0"
 idna = ["idna (>=2.1)"]
 
 [[package]]
-name = "pycparser"
-version = "2.21"
-description = "C parser in Python"
 category = "main"
+description = "C parser in Python"
+name = "pycparser"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "2.21"
 
 [[package]]
-name = "python-dateutil"
-version = "2.8.2"
-description = "Extensions to the standard Python datetime module"
 category = "main"
+description = "Extensions to the standard Python datetime module"
+name = "python-dateutil"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+version = "2.8.2"
 
 [package.dependencies]
 six = ">=1.5"
 
 [[package]]
-name = "python-dotenv"
-version = "0.20.0"
-description = "Read key-value pairs from a .env file and set them as environment variables"
 category = "main"
+description = "Read key-value pairs from a .env file and set them as environment variables"
+name = "python-dotenv"
 optional = false
 python-versions = ">=3.5"
+version = "0.20.0"
 
 [package.extras]
 cli = ["click (>=5.0)"]
 
 [[package]]
-name = "six"
-version = "1.16.0"
-description = "Python 2 and 3 compatibility utilities"
 category = "main"
+description = "Python 2 and 3 compatibility utilities"
+name = "six"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
+version = "1.16.0"
 
 [[package]]
-name = "tomli"
-version = "2.0.1"
-description = "A lil' TOML parser"
 category = "dev"
+description = "A lil' TOML parser"
+name = "tomli"
 optional = false
 python-versions = ">=3.7"
+version = "2.0.1"
 
 [[package]]
-name = "typing-extensions"
-version = "4.2.0"
+category = "main"
 description = "Backported and Experimental Type Hints for Python 3.7+"
-category = "main"
+name = "typing-extensions"
 optional = false
 python-versions = ">=3.7"
+version = "4.2.0"
 
 [[package]]
-name = "uvloop"
-version = "0.16.0"
-description = "Fast implementation of asyncio event loop on top of libuv"
 category = "main"
+description = "Fast implementation of asyncio event loop on top of libuv"
+name = "uvloop"
 optional = false
 python-versions = ">=3.7"
+version = "0.16.0"
 
 [package.extras]
 dev = ["Cython (>=0.29.24,<0.30.0)", "pytest (>=3.6.0)", "Sphinx (>=4.1.2,<4.2.0)", "sphinxcontrib-asyncio (>=0.3.0,<0.4.0)", "sphinx-rtd-theme (>=0.5.2,<0.6.0)", "aiohttp", "flake8 (>=3.9.2,<3.10.0)", "psutil", "pycodestyle (>=2.7.0,<2.8.0)", "pyOpenSSL (>=19.0.0,<19.1.0)", "mypy (>=0.800)"]
@@ -442,33 +461,33 @@ docs = ["Sphinx (>=4.1.2,<4.2.0)", "sphinxcontrib-asyncio (>=0.3.0,<0.4.0)", "sp
 test = ["aiohttp", "flake8 (>=3.9.2,<3.10.0)", "psutil", "pycodestyle (>=2.7.0,<2.8.0)", "pyOpenSSL (>=19.0.0,<19.1.0)", "mypy (>=0.800)"]
 
 [[package]]
-name = "yarl"
-version = "1.7.2"
-description = "Yet another URL library"
 category = "main"
+description = "Yet another URL library"
+name = "yarl"
 optional = false
 python-versions = ">=3.6"
+version = "1.7.2"
 
 [package.dependencies]
 idna = ">=2.0"
 multidict = ">=4.0"
 
 [[package]]
-name = "zipp"
-version = "3.8.0"
-description = "Backport of pathlib-compatible object wrapper for zip files"
 category = "main"
+description = "Backport of pathlib-compatible object wrapper for zip files"
+name = "zipp"
 optional = false
 python-versions = ">=3.7"
+version = "3.8.0"
 
 [package.extras]
 docs = ["sphinx", "jaraco.packaging (>=9)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy (>=0.9.1)"]
 
 [metadata]
+content-hash = "eb89f4134492e69cde582f404071027db536e85bee77c6bbc8966d3ca89a6c4d"
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "f387aec840803bee0d59648f85fd96b0f7f8904bff97bed11a0db3dc17d79548"
 
 [metadata.files]
 aiodns = [
@@ -744,6 +763,15 @@ colorama = [
 ]
 discord-ext-menus = []
 "discord.py" = []
+dta = [
+    {file = "dta-1.3.1-py2.py3-none-any.whl", hash = "sha256:42e0694169b24ee83895ad5ec27b2b629ac012fcc99c7236fad4b4e108b50cb4"},
+    {file = "dta-1.3.1-py3-none-any.whl", hash = "sha256:b984e6f5ba4d50f83c710352fc318048ade2a7d9fb91fe950da0a03a8826634d"},
+    {file = "dta-1.3.1.tar.gz", hash = "sha256:17c976bad4b1ca7be470abec4d46bff4b743baa2e07b0b2ee9d0792d87d5b0b3"},
+]
+ez-aiohttp = [
+    {file = "ez_aiohttp-0.1.0-py3-none-any.whl", hash = "sha256:20f4b92efdde42c12f82a9a55d0d7c726214a2faeb24361df3743660b3c04754"},
+    {file = "ez_aiohttp-0.1.0.tar.gz", hash = "sha256:63f518dadb595983312a732089d2b8ba4128896c9c16c922065fc224235c283c"},
+]
 frozenlist = [
     {file = "frozenlist-1.3.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:d2257aaba9660f78c7b1d8fea963b68f3feffb1a9d5d05a18401ca9eb3e8d0a3"},
     {file = "frozenlist-1.3.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:4a44ebbf601d7bac77976d429e9bdb5a4614f9f4027777f9e54fd765196e9d3b"},
