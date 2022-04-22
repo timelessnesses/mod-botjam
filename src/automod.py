@@ -7,12 +7,11 @@ from discord.ext import commands
 
 sys.path.append("src")
 import datetime
+import traceback
 
 import utils.json
 import utils.profanity_checker
 import utils.stuffs
-
-import traceback
 
 
 class dummy:
