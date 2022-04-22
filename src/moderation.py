@@ -210,18 +210,21 @@ class Moderation(commands.Cog):
                 )
 
         d = datetime.utcnow()
-        await member.send(
-            embed=discord.Embed(
-                title="You have been kicked from {}".format(ctx.guild.name),
-                description="You have been kicked from {}\nActioner: {}\nReason: {}\nWhen: {}".format(
-                    ctx.guild.name,
-                    ctx.author.name,
-                    reason,
-                    d.strftime("%Y/%m/%d %H:%M:%S"),
-                ),
-                color=discord.Color.red(),
+        try:
+            await member.send(
+                embed=discord.Embed(
+                    title="You have been kicked from {}".format(ctx.guild.name),
+                    description="You have been kicked from {}\nActioner: {}\nReason: {}\nWhen: {}".format(
+                        ctx.guild.name,
+                        ctx.author.name,
+                        reason,
+                        d.strftime("%Y/%m/%d %H:%M:%S"),
+                    ),
+                    color=discord.Color.red(),
+                )
             )
-        )
+        except discord.HTTPException:
+            pass
         await member.kick(reason=reason)
         d = utils.stuffs.random_id()
         await ctx.send(

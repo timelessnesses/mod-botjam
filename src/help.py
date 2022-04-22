@@ -6,6 +6,7 @@ import itertools
 from typing import Any, Dict, List, Optional, Union
 
 import discord
+from discord import app_commands
 from discord.ext import commands, menus
 
 from .utils import time
@@ -196,10 +197,9 @@ class PaginatedHelpCommand(commands.HelpCommand):
         )
 
     async def on_help_command_error(self, ctx, error):
-        if isinstance(error, commands.CommandInvokeError):
-            import traceback
+        import traceback
 
-            traceback.print_exc()
+        traceback.print_exc()
 
     def get_command_signature(self, command):
         parent = command.full_parent_name
@@ -281,6 +281,8 @@ class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.old_help_command = bot.help_command
+        bot.help_command = PaginatedHelpCommand()
+        bot.help_command.cog = self
 
     @property
     def display_emoji(self) -> discord.PartialEmoji:
@@ -289,11 +291,22 @@ class Help(commands.Cog):
     def cog_unload(self):
         self.bot.help_command = self.old_help_command
 
-    @commands.hybrid_command(name="help", aliases=["h"])
-    async def help(self, ctx: discord.Interaction):
-        """Commands for utilities related to Discord or the Bot itself."""
-        d = PaginatedHelpCommand()
-        d.cog = self
+    @app_commands.command(
+        name="help",
+    )
+    async def help(self, interaction: discord.Interaction, *, command: str = None):
+        """Shows help about the bot, a command, or a category."""
+        context = await self.bot.get_context(interaction)
+        if command is not None:
+            await context.send(
+                embed=discord.Embed(
+                    title="Deprecated",
+                    description=f"Due to discord.py limitaton reasons please do n!help {command} instead.",
+                    color=discord.Color.yellow(),
+                )
+            )
+        else:
+            await context.send_help()
 
 
 async def setup(bot):
