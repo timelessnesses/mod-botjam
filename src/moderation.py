@@ -352,18 +352,21 @@ class Moderation(commands.Cog):
                     )
                 )
         d = datetime.utcnow()
-        await member.send(
-            embed=discord.Embed(
-                title="You have been banned from {}".format(ctx.guild.name),
-                description="You have been banned from {}\nActioner: {}\nReason: {}\nWhen: {}".format(
-                    ctx.guild.name,
-                    ctx.author.name,
-                    reason,
-                    d.strftime("%Y/%m/%d %H:%M:%S"),
-                ),
-                color=discord.Color.red(),
+        try:
+            await member.send(
+                embed=discord.Embed(
+                    title="You have been banned from {}".format(ctx.guild.name),
+                    description="You have been banned from {}\nActioner: {}\nReason: {}\nWhen: {}".format(
+                        ctx.guild.name,
+                        ctx.author.name,
+                        reason,
+                        d.strftime("%Y/%m/%d %H:%M:%S"),
+                    ),
+                    color=discord.Color.red(),
+                )
             )
-        )
+        except discord.HTTPException:
+            pass
         await member.ban(reason=reason)
         d = utils.stuffs.random_id()
         await ctx.send(
@@ -854,50 +857,46 @@ class Moderation(commands.Cog):
                 )
         async with aiofiles.open("db/logging.json") as fp:
             db = await utils.json.load(fp)
-        g
-        try:
-            for i in db[str(ctx.guild.id)]["logging"]:
-                if i["id"] == id:
-                    g = i
-                    if i["type"] != "warn":
-                        return await ctx.send(
-                            embed=discord.Embed(
-                                title="This isn't a warning",
-                                description="This isn't a warning",
-                                color=discord.Color.red(),
-                            )
-                        )
-                    del db[str(ctx.guild.id)]["logging"][
-                        db[str(ctx.guild.id)]["logging"].index(i)
-                    ]
-                    await ctx.send(
-                        embed=discord.Embed(
-                            title="The warning has been deleted",
-                            description="The warning has been deleted\nActioner: {}".format(
-                                ctx.author.name
-                            ),
-                            color=discord.Color.green(),
-                        )
+
+        warns = [x for x in db[str(ctx.guild.id)]["logging"] if x["type"] == "warn"]
+        d = utils.stuffs.random_id()
+        for x in warns:
+            if x["id"] == id:
+                founded = True
+                await ctx.send(
+                    embed=discord.Embed(
+                        title="{} has been deleted".format(x["id"]),
+                        description="{} have been deleted\nActioner: {}\nReason: {}\nTime: {}\nLog ID: {}".format(
+                            x["id"],
+                            ctx.author.name,
+                            reason,
+                            datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
+                            d,
+                        ),
+                        color=discord.Color.green(),
                     )
-        except KeyError as e:
-            traceback.print_exc()
+                )
+                await utils.logger.del_warn_log(
+                    d,
+                    x["id"],
+                    ctx.guild.id,
+                    utils.logger.Types.delwarn,
+                    ctx.author.id,
+                    x["target"],
+                    datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
+                    reason,
+                )
+                await self.log(
+                    ctx, "delwarn", d, reason, self.bot.get_user(x["target"])
+                )
+        if not founded:
             return await ctx.send(
                 embed=discord.Embed(
-                    title="The warning doesn't exist",
-                    description="The warning doesn't exist",
+                    title="Error",
+                    description="The id you provided doesn't exist",
                     color=discord.Color.red(),
                 )
             )
-        await self.log(ctx, "delwarn", id, reason, self.bot.fetch_user(g["target"]))
-        await utils.logger.del_warn_log(
-            id,
-            ctx.guild.id,
-            utils.logger.Types.delwarn,
-            ctx.author.id,
-            g["target"],
-            datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
-            None,
-        )
 
     @commands.hybrid_command(name="warns", aliases=["warnings"])
     async def warns(self, ctx: commands.Context, member: discord.Member) -> None:
@@ -975,41 +974,31 @@ class Moderation(commands.Cog):
             raise commands.MissingPermissions(["manage_messages"])
         if amount is None:
             return await ctx.send(embed=utils.embedgen.error_required_arg("amount"))
+        amount += 1
         await ctx.channel.purge(limit=amount + 1)
         await ctx.send(
             embed=discord.Embed(
-                title="Purged {} messages".format(amount), color=discord.Color.red()
+                title="Purged {} messages".format(amount - 1), color=discord.Color.red()
             )
         )
-        async with aiofiles.open("db/logging.json") as fp:
-            db = await utils.json.load(fp)
         d = utils.stuffs.random_id()
-        try:
-            db[str(ctx.guild.id)]["logs"].append(
-                {
-                    "id": d,
-                    "type": "purge",
-                    "user": ctx.author.id,
-                    "amount": amount,
-                    "when": datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
-                }
-            )
-        except KeyError:
-            db[str(ctx.guild.id)] = {
-                "logs": [
-                    {
-                        "id": d,
-                        "type": "purge",
-                        "user": ctx.author.id,
-                        "amount": amount,
-                        "when": datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
-                    }
-                ]
-            }
-        async with aiofiles.open("db/logging.json", "w") as fp:
-            await utils.json.dump(fp, db)
+        await utils.logger.log(
+            d,
+            ctx.guild.id,
+            utils.logger.Types.purge,
+            ctx.author.id,
+            None,
+            datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
+            "Purged {} messages".format(amount - 1),
+        )
 
-        await self.log(ctx, "purge", d, None)
+        await self.log(
+            ctx,
+            "purge",
+            d,
+            "Purged {} messages".format(amount - 1),
+            ctx.author,
+        )
 
     @commands.hybrid_command(name="getlogs", aliases=["log"])
     async def getlog(self, ctx: commands.Context, id: str):
@@ -1026,46 +1015,50 @@ class Moderation(commands.Cog):
         async with aiofiles.open("db/logging.json") as fp:
             db = await utils.json.load(fp)
         try:
-            logs = db[str(ctx.guild.id)]["logs"]
+            logs = db[str(ctx.guild.id)]["logging"]
         except KeyError:
             return await ctx.send(
                 embed=discord.Embed(
-                    title="There are no logs",
-                    description="There are no logs",
+                    title="There are no log ID associated with this server",
                     color=discord.Color.red(),
                 )
             )
-        try:
-            logs = [i for i in logs if i["id"] == id]
-        except KeyError:
+        log = filter(lambda x: x["id"] == id, logs)
+        log = list(log)
+        if not log:
             return await ctx.send(
                 embed=discord.Embed(
-                    title="There are no logs",
-                    description="There are no logs",
+                    title="There is no log with this ID",
                     color=discord.Color.red(),
                 )
             )
-        if not logs:
-            return await ctx.send(
-                embed=discord.Embed(
-                    title="There are no logs",
-                    description="There are no logs",
-                    color=discord.Color.red(),
-                )
-            )
+        log = log[0]
         embed = discord.Embed(
-            title="Log with ID {}".format(id),
-            description="Log with ID {}".format(id),
-            color=discord.Color.red(),
+            title="Log ID: {}".format(log["id"]), color=discord.Color.green()
         )
-        for i in logs:
-            embed.add_field(name="Reason", value=i["reason"], inline=False)
+        embed.add_field(name="Type", value=log["type"], inline=False)
+        embed.add_field(
+            name="Actioner",
+            value=ctx.guild.get_member(log["actioner"]).name,
+            inline=False,
+        )
+        user = (
+            await self.bot.fetch_user(int(log["target"]))
+            if log["target"] is not None
+            else "Unknown"
+        )
+        if isinstance(user, discord.User):
             embed.add_field(
-                name="Moderator",
-                value=ctx.guild.get_member(i["actioner"]).name,
+                name="Target",
+                value="{}#{}".format(user.name, user.discriminator),
                 inline=False,
             )
-            embed.add_field(name="When", value=i["when"], inline=False)
+        else:
+            embed.add_field(name="Target", value="Unknown", inline=False)
+        embed.add_field(name="When", value=log["when"], inline=False)
+        embed.add_field(name="Reason", value=log["reason"], inline=False)
+        if log.get("duration"):
+            embed.add_field(name="Duration", value=log["duration"], inline=False)
         await ctx.send(embed=embed)
 
     @commands.hybrid_command(name="setup_logging")
@@ -1102,6 +1095,8 @@ class Moderation(commands.Cog):
             )
         )
 
+    async def log_mute(self, ctx: commands.Context, action:str, id: str, reason: str, target: discord.Member, time: datetime.timedelta) -> None:
+        
 
 async def setup(bot: commands.Bot) -> None:
     """

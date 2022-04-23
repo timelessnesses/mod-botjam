@@ -37,7 +37,7 @@ class Stuff(
             value="[X19Z10#1125] for modal idea (modal still sucks and very limited so no)",
         )
 
-        embed.add_feld(
+        embed.add_field(
             name="The bot is also open-source!",
             value="https://github.com/timelessnesses/mod-botjam",
         )

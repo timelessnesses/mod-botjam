@@ -17,7 +17,7 @@ class Types:
     delwarn = "delwarn"
     purge = "purge"
     hackban = "hackban"
-    profanity = "profanity"
+    swear = "swear"
 
 
 async def log(
@@ -44,18 +44,16 @@ async def log(
             }
         )
     except KeyError:
-        data[str(guild)] = {
-            "logging": [
-                {
-                    "id": id,
-                    "type": type,
-                    "actioner": actioner,
-                    "target": target,
-                    "when": when,
-                    "reason": reason,
-                }
-            ]
-        }
+        data[str(guild)]["logging"] = [
+            {
+                "id": id,
+                "type": type,
+                "actioner": actioner,
+                "target": target,
+                "when": when,
+                "reason": reason,
+            }
+        ]
     async with aiofiles.open("db/logging.json", "w") as fp:
         await json.dump(fp, data)
 
@@ -86,25 +84,24 @@ async def log_mute(
             }
         )
     except KeyError:
-        data[str(guild)] = {
-            "logging": [
-                {
-                    "id": id,
-                    "type": type,
-                    "actioner": actioner,
-                    "target": target,
-                    "when": when,
-                    "reason": reason,
-                    "duration": duration,
-                }
-            ]
-        }
+        data[str(guild)]["logging"] = [
+            {
+                "id": id,
+                "type": type,
+                "actioner": actioner,
+                "target": target,
+                "when": when,
+                "reason": reason,
+                "duration": duration,
+            }
+        ]
     async with aiofiles.open("db/logging.json", "w") as fp:
         await json.dump(fp, data)
 
 
 async def del_warn_log(
     id: str,
+    warn_id: str,
     guild: int,
     type: Types,
     actioner: typing.Union[discord.Member, discord.User],
@@ -127,21 +124,19 @@ async def del_warn_log(
             }
         )
     except KeyError:
-        data[str(guild)] = {
-            "logging": [
-                {
-                    "id": id,
-                    "type": type,
-                    "actioner": actioner,
-                    "target": target,
-                    "when": when,
-                    "reason": reason,
-                }
-            ]
-        }
+        data[str(guild)]["logging"] = [
+            {
+                "id": id,
+                "type": type,
+                "actioner": actioner,
+                "target": target,
+                "when": when,
+                "reason": reason,
+            }
+        ]
     try:
         for logs in data[str(guild)]["logging"]:
-            if logs["id"] == id:
+            if logs["id"] == warn_id:
                 data[str(guild)]["logging"].remove(logs)
     except:
         pass

@@ -1,1 +1,57 @@
-{"842827513830965378":{"config":{"logging":null},"logs":[]},"894237535730012160":{"logging":[{"id":"RKFMDy8R3e","type":"ban","actioner":890913140278181909,"target":966947896811466773,"when":"2022/04/22 17:10:07","reason":"No reason specified"},{"id":"eYfxSCbFBK","type":"kick","actioner":890913140278181909,"target":934261468273213531,"when":"2022/04/22 17:10:20","reason":"No reason specified"},{"id":"AxjxwPksN1","type":"kick","actioner":890913140278181909,"target":912743909959020617,"when":"2022/04/22 17:13:15","reason":"No reason specified"}]},"profanity":{"logging":[{"id":"nbQBgqgzMF","type":965380368482041937,"actioner":894237535730012160,"target":934261468273213531,"when":"muted","reason":"automatically muted for profanity"}]}}
+{
+  "894237535730012160": {
+    "config": {
+      "logging": 894237535730012163
+    },
+    "logging": [
+      {
+        "id": "QpRb6M8ajR",
+        "type": "purge",
+        "actioner": 890913140278181909,
+        "target": null,
+        "when": "2022/04/23 14:10:05",
+        "reason": "Purged 2 messages"
+      },
+      {
+        "id": "cOahMLFRpm",
+        "type": "ban",
+        "actioner": 890913140278181909,
+        "target": 839794863591260182,
+        "when": "2022/04/23 14:12:53",
+        "reason": "No reason specified"
+      },
+      {
+        "id": "qX06uW1Yf6",
+        "type": "ban",
+        "actioner": 890913140278181909,
+        "target": 945935673754517524,
+        "when": "2022/04/23 14:14:15",
+        "reason": "No reason specified"
+      },
+      {
+        "id": "smpCldIumD",
+        "type": "unban",
+        "actioner": 890913140278181909,
+        "target": 966947896811466773,
+        "when": "2022/04/23 14:15:54",
+        "reason": "No reason specified"
+      },
+      {
+        "id": "rMORuMTKAH",
+        "type": "delwarn",
+        "actioner": 890913140278181909,
+        "target": 934261468273213531,
+        "when": "2022/04/23 14:34:00",
+        "reason": "No reason provided"
+      },
+      {
+        "id": "6rzhDtZfim",
+        "type": "delwarn",
+        "actioner": 890913140278181909,
+        "target": 934261468273213531,
+        "when": "2022/04/23 14:34:20",
+        "reason": "No reason provided"
+      }
+    ]
+  }
+}

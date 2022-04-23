@@ -7,12 +7,12 @@ from discord.ext import commands
 
 sys.path.append("src")
 import datetime
+import traceback
 
 import utils.json
+import utils.logger
 import utils.profanity_checker
 import utils.stuffs
-
-import traceback
 
 
 class dummy:
@@ -227,12 +227,24 @@ class Automod(commands.Cog, name="Auto moderation"):
                     )
 
                     context = dummy(member, self.bot)
+                    d = utils.stuffs.random_id()
                     await self.log(
                         context,
                         "banned",
-                        utils.stuffs.random_id(),
+                        d,
                         "Account oldness",
                         member,
+                    )
+                    await utils.logger.log(
+                        d,
+                        context.guild.id,
+                        utils.logger.Types.ban,
+                        self.bot.user.id,
+                        member.id,
+                        datetime.datetime.utcnow(),
+                        "Automatic ban for account oldness is lower than {} days".format(
+                            db[str(member.guild.id)]["account_old"]
+                        ),
                     )
                     await member.ban(reason="Account oldness")
             return
@@ -248,15 +260,27 @@ class Automod(commands.Cog, name="Auto moderation"):
                             color=discord.Color.red(),
                         )
                     )
-                    await member.kick(reason="Account oldness")
                     context = dummy(member, self.bot)
+                    d = utils.stuffs.random_id()
                     await self.log(
                         context,
                         "kicked",
-                        utils.stuffs.random_id(),
+                        d,
                         "Account oldness",
                         member,
                     )
+                    await utils.logger.log(
+                        d,
+                        context.guild.id,
+                        utils.logger.Types.kick,
+                        self.bot.user.id,
+                        member.id,
+                        datetime.datetime.utcnow(),
+                        "Automatic kick for account oldness is lower than {} days".format(
+                            db[str(member.guild.id)]["account_old"]
+                        ),
+                    )
+                    await member.kick(reason="Account oldness")
         except KeyError:
             pass
 
@@ -378,6 +402,16 @@ class Automod(commands.Cog, name="Auto moderation"):
                                 color=discord.Color.red(),
                             )
                         )
+                        await utils.logger.log_mute(
+                            d,
+                            message.guild.id,
+                            utils.logger.Types.swear,
+                            self.bot.user.id,
+                            message.author.id,
+                            datetime.datetime.utcnow(),
+                            "I don't have permission to mute this member",
+                            str(time),
+                        )
                     except discord.HTTPException:
                         await self.log(
                             ctx,
@@ -394,13 +428,23 @@ class Automod(commands.Cog, name="Auto moderation"):
                                 color=discord.Color.red(),
                             )
                         )
+                        await utils.logger.log_mute(
+                            d,
+                            message.guild.id,
+                            utils.logger.Types.swear,
+                            self.bot.user.id,
+                            message.author.id,
+                            datetime.datetime.utcnow(),
+                            "Operation failed",
+                            str(time),
+                        )
 
                     else:
                         await self.log(
                             ctx,
                             "muted for swearing",
                             d,
-                            "Member muted",
+                            "Muted for swearing",
                             message.author,
                             self.bot.user,
                         )
@@ -410,6 +454,16 @@ class Automod(commands.Cog, name="Auto moderation"):
                                 description=f"You have been muted for {str(time)} because you said a profanity word",
                                 color=discord.Color.red(),
                             )
+                        )
+                        await utils.logger.log_mute(
+                            d,
+                            message.guild.id,
+                            utils.logger.Types.swear,
+                            self.bot.user.id,
+                            message.author.id,
+                            datetime.datetime.utcnow(),
+                            "Member muted",
+                            str(time),
                         )
         except KeyError:
             pass
