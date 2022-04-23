@@ -1037,9 +1037,10 @@ class Moderation(commands.Cog):
             title="Log ID: {}".format(log["id"]), color=discord.Color.green()
         )
         embed.add_field(name="Type", value=log["type"], inline=False)
+        a = await ctx.guild.fetch_member(log["actioner"])
         embed.add_field(
             name="Actioner",
-            value=ctx.guild.get_member(log["actioner"]).name,
+            value=a.mention,
             inline=False,
         )
         user = (
@@ -1058,7 +1059,11 @@ class Moderation(commands.Cog):
         embed.add_field(name="When", value=log["when"], inline=False)
         embed.add_field(name="Reason", value=log["reason"], inline=False)
         if log.get("duration"):
-            embed.add_field(name="Duration", value=log["duration"], inline=False)
+            embed.add_field(
+                name="Duration",
+                value=str(self._parse_time(log["duration"])),
+                inline=False,
+            )
         await ctx.send(embed=embed)
 
     @commands.hybrid_command(name="setup_logging")
@@ -1095,8 +1100,41 @@ class Moderation(commands.Cog):
             )
         )
 
-    async def log_mute(self, ctx: commands.Context, action:str, id: str, reason: str, target: discord.Member, time: datetime.timedelta) -> None:
-        
+    async def log_mute(
+        self,
+        ctx: commands.Context,
+        action: str,
+        id: str,
+        reason: str,
+        target: discord.Member,
+        time: n.timedelta,
+    ) -> None:
+        async with aiofiles.open("db/logging.json") as fp:
+            db = await utils.json.load(fp)
+        try:
+            channel = ctx.guild.get_channel(
+                int(db[str(ctx.guild.id)]["config"]["logging"])
+            )
+        except KeyError:
+            return
+        if channel is None:
+            return
+        embed = discord.Embed(
+            title="Action {}".format(action),
+            description="{} has been {} from {}\nActioner: {}\nReason: {}\nWhen: {}\nDuration: {}\nLog ID: {}".format(
+                target.name + "#" + target.discriminator,
+                action,
+                ctx.guild.name,
+                ctx.author.mention,
+                reason,
+                datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S"),
+                str(time),
+                id,
+            ),
+            color=discord.Color.red(),
+        )
+        await channel.send(embed=embed)
+
 
 async def setup(bot: commands.Bot) -> None:
     """
