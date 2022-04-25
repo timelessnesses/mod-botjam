@@ -289,4 +289,3 @@ def human_timedelta(dt, *, source=None, accuracy=3, brief=False, suffix=True):
 
 def format_relative(dt):
     return format_dt(dt, "R")
-

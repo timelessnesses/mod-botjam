@@ -11,6 +11,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 import os
+
+import sentry_sdk
+from sentry_sdk.integrations.aiohttp import AioHttpIntegration
+
+if os.environ.get("SENTRY_DSN"):
+    sentry_sdk.init(
+        dsn=os.environ["SENTRY_DSN"],
+        integrations=[AioHttpIntegration()],
+    )
+
 import subprocess
 from datetime import datetime
 
