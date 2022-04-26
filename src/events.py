@@ -15,6 +15,9 @@ class Events(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         await self.check_servers()
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild: discord.Guild):
+        await self.check_servers()
 
     async def check_servers(self):
         async with aiofiles.open("db/logging.json", "r") as f:

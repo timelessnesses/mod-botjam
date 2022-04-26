@@ -79,6 +79,8 @@ class Automod(commands.Cog, name="Auto moderation"):
         """
         Automatically ban user if user account oldness isn't reached (default: 7 days)
         """
+        if ctx.author.guild_permissions.administrator is False:
+            raise commands.MissingPermissions(["administrator"])
         async with aiofiles.open("db/automod.json", "r") as f:
             db = await utils.json.load(f)
         try:
@@ -127,6 +129,8 @@ class Automod(commands.Cog, name="Auto moderation"):
         """
         Automatically kick user if user account oldness isn't reached (default: 7 days)
         """
+        if ctx.author.guild_permissions.administrator is False:
+            raise commands.MissingPermissions(["administrator"])
         async with aiofiles.open("db/automod.json", "r") as f:
             db = await utils.json.load(f)
         try:
@@ -183,6 +187,8 @@ class Automod(commands.Cog, name="Auto moderation"):
         """
         Set the account oldness (default: 7 days)
         """
+        if ctx.author.guild_permissions.administrator is False:
+            raise commands.MissingPermissions(["administrator"])
         async with aiofiles.open("db/automod.json", "r") as f:
             db = await utils.json.load(f)
         try:
@@ -293,6 +299,8 @@ class Automod(commands.Cog, name="Auto moderation"):
         """
         Automatically mute member for specific amount of time if they said profane word (default: 5 minutes)
         """
+        if ctx.author.guild_permissions.administrator is False:
+            raise commands.MissingPermissions(["administrator"])
         async with aiofiles.open("db/automod.json", "r") as f:
             db = await utils.json.load(f)
         if toggle is None:
@@ -347,6 +355,8 @@ class Automod(commands.Cog, name="Auto moderation"):
         """
         Amount of time for muting when member said any profanity word (default: 1 minute)
         """
+        if ctx.author.guild_permissions.administrator is False:
+            raise commands.MissingPermissions(["administrator"])
         time = self.parse_time(time)
         async with aiofiles.open("db/automod.json", "r") as f:
             db = await utils.json.load(f)

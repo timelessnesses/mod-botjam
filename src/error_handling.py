@@ -60,6 +60,8 @@ class Errors(commands.Cog):
                     color=discord.Color.red(),
                 )
             )
+        elif isinstance(exception, commands.NotOwner):
+            pass
         else:
             print(
                 "Ignoring exception in command {}:".format(ctx.command), file=sys.stderr
