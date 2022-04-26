@@ -262,7 +262,7 @@ class Moderation(commands.Cog):
             channel = ctx.guild.get_channel(
                 int(db[str(ctx.guild.id)]["config"]["logging"])
             )
-        except KeyError:
+        except (KeyError, TypeError):
             return
         if channel is None:
             return

@@ -16,8 +16,7 @@ class Errors(commands.Cog):
         self, ctx: commands.Context, exception: Exception
     ) -> None:
         if isinstance(exception, commands.CommandNotFound):
-            cmds = [cmd.name for cmd in self.bot.commands]
-            # cmds = [cmd.name for cmd in bot.commands if not cmd.hidden] # use this to stop showing hidden commands as suggestions
+            cmds = [cmd.name for cmd in self.bot.commands if not cmd.hidden] # use this to stop showing hidden commands as suggestions
             matches = get_close_matches(ctx.invoked_with, cmds)
             if len(matches) > 0:
                 await ctx.send(
@@ -32,7 +31,6 @@ class Errors(commands.Cog):
                 await ctx.send(
                     embed=discord.Embed(
                         title="Command not found",
-                        description=f"Did you mean `{ctx.invoked_with}`?",
                         color=discord.Color.red(),
                     )
                 )
