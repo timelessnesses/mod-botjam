@@ -1,11 +1,11 @@
 import platform
+import sys
 from datetime import datetime
 
 import discord
 import psutil
 from discord import app_commands
 from discord.ext import commands
-import sys
 
 sys.path.append("src")
 import utils.time
