@@ -16,7 +16,9 @@ class Errors(commands.Cog):
         self, ctx: commands.Context, exception: Exception
     ) -> None:
         if isinstance(exception, commands.CommandNotFound):
-            cmds = [cmd.name for cmd in self.bot.commands if not cmd.hidden] # use this to stop showing hidden commands as suggestions
+            cmds = [
+                cmd.name for cmd in self.bot.commands if not cmd.hidden
+            ]  # use this to stop showing hidden commands as suggestions
             matches = get_close_matches(ctx.invoked_with, cmds)
             if len(matches) > 0:
                 await ctx.send(
