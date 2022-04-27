@@ -1,5 +1,4 @@
 import sys
-import typing
 
 import aiofiles
 import discord

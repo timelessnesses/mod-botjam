@@ -1,4 +1,3 @@
-import io
 import sys
 import traceback
 from difflib import get_close_matches

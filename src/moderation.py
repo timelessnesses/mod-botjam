@@ -6,7 +6,6 @@ from discord.ext import commands
 sys.path.append("src")
 import asyncio
 import datetime as n
-import traceback
 from datetime import datetime
 
 import aiofiles

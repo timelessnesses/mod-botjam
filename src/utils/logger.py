@@ -1,5 +1,4 @@
 import typing
-from enum import Enum
 
 import aiofiles
 import discord
