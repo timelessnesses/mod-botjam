@@ -1,4 +1,6 @@
-# Steal from R. Danny
+"""
+Stole from [Robo Danny](https://github.com/Rapptz/RoboDanny)
+"""
 
 import datetime
 import re
