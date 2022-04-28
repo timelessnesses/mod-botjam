@@ -6,8 +6,8 @@ import discord
 import psutil
 from discord.ext import commands
 
-sys.path.append("src")
-import utils.time
+
+from . import utils
 
 
 class Stuff(

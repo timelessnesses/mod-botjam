@@ -2,19 +2,12 @@ import sys
 
 import discord
 from discord.ext import commands
-
-sys.path.append("src")
 import asyncio
 import datetime as n
 from datetime import datetime
 
 import aiofiles
-
-import utils.embedgen
-import utils.json
-import utils.logger
-import utils.stuffs
-import utils.views
+from . import utils
 
 
 class Moderation(commands.Cog):

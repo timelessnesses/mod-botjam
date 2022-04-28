@@ -1,12 +1,8 @@
-import sys
 
 import aiofiles
 import discord
 from discord.ext import commands
-
-sys.path.append("src")
-import utils.json
-
+from . import utils
 
 class Events(commands.Cog):
     def __init__(self, bot):

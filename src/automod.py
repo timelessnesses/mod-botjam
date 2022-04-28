@@ -1,17 +1,10 @@
-import sys
-
 import aiofiles
 import discord
 from discord.ext import commands
-
-sys.path.append("src")
 import datetime
 import traceback
 
-import utils.json
-import utils.logger
-import utils.profanity_checker
-import utils.stuffs
+from . import utils
 
 
 class dummy:
