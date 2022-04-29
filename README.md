@@ -2,6 +2,7 @@
 A discord.py botjam with JSON db (stable?)
 
 ## Instruction
+0. read da license file
 1. Clone the repo
 2. Install poetry
 3. [setup](#setup)
