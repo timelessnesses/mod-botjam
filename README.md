@@ -17,3 +17,6 @@ DISCORD_TOKEN=token
 OWNER_ID=owner
 DEPLOY_TYPE=stable
 ```
+
+## credit
+help command from [Robo Danny](https://github.com/Rapptz/RoboDanny)
